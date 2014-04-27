@@ -11,6 +11,7 @@ class Inteiro{
 	}
 
 	Inteiro (int tamanho){
+		//aqui eu me aproveito do fato do java inicializar tudo com 0
 		this.bits = new int[tamanho];
 	}
 
@@ -22,7 +23,7 @@ class Inteiro{
 			else if(numero[i] == 0 || numero[i] == 1)
 				this.bits[i] = numero[i];
 			else{
-				System.err.println("Inteiro@contrutor: vetor contem numeros que não são 0 ou 1");
+				System.err.println("Inteiro.contrutor: vetor contem numeros que não são 0 ou 1");
 				break;
 			}
 		}
@@ -67,16 +68,14 @@ class Inteiro{
 
 	public void Rshift(){
 		int aux;
-		for(int i = 0; i <	(this.bits.length - 1);i++){
+		for(int i = 0; i <	(this.bits.length - 1);i++)
 			this.bits[i+1] = this.bits[i];
-		}
 	}
 
 	public void Lshift(){
 		int aux;
-		for(int i = 0; i <	(this.bits.length - 1);i++){
+		for(int i = 0; i <	(this.bits.length - 1);i++)
 			this.bits[i] = this.bits[i+1];
-		}
 	}
 
 	public int[] toBinario(int tamanho,int numero){
@@ -97,9 +96,8 @@ class Inteiro{
 
 	public String toString(){
 		String result = "";
-		for(int i = 0; i < this.bits.length ; i++){
+		for(int i = 0; i < this.bits.length ; i++)
 			result = result + String.valueOf(this.bits[this.bits.length-i-1]);
-		}
 		return result;
 	}
 
