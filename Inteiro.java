@@ -10,6 +10,10 @@ class Inteiro{
 		this.bits = this.toBinario(tamanho, numero);
 	}
 
+	Inteiro (int tamanho){
+		this.bits = new int[tamanho];
+	}
+
 	Inteiro(int tamanho, int[] numero){
 		this.bits = new int[tamanho];
 		for(int i = 0 ; i < tamanho; i++){
@@ -23,8 +27,20 @@ class Inteiro{
 			}
 		}
 	}
+
 	public int max(int a, int b){
 		return (a > b )? a : b;
+	}
+
+	public Inteiro complementoDe2(){
+		Inteiro notThis = new Inteiro(this.bits.length);
+		for(int a = 0; a < this.bits.length; a++)
+			notThis.bits[a] = (this.bits[a] == 0)? 1 : 0;
+		return soma(notThis.bits.length,notThis, new Inteiro(1,1));
+	}
+
+	public static Inteiro subtrai(int tamanho, Inteiro int1, Inteiro int2){
+		return soma(tamanho, int1, int2.complementoDe2());
 	}
 
 	public static Inteiro soma(int tamanho,Inteiro int1, Inteiro int2){
@@ -86,6 +102,7 @@ class Inteiro{
 		}
 		return result;
 	}
+
 	public int toInteger(){
 		int p2 = 1;
 		int result = 0;
@@ -95,6 +112,7 @@ class Inteiro{
 		}
 		return result;
 	}
+
 	public static void main(String[] args){
 		Inteiro i = new Inteiro(32,200);
 		Inteiro a = new Inteiro(32,105);
@@ -102,5 +120,7 @@ class Inteiro{
 		System.out.println(i.toInteger());
 		Inteiro soma = Inteiro.soma(32, i,a);
 		System.out.println(soma.toInteger());
+		Inteiro subtracao = Inteiro.subtrai(32,i,a);
+		System.out.println(subtracao.toInteger());
 	}
 }
