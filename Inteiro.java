@@ -28,6 +28,13 @@ class Inteiro{
 			this.bits[i+1] = this.bits[i];
 		}
 	}
+
+	public void Lshift(){
+		int aux;
+		for(int i = 0; i <	(this.bits.length - 1);i++){
+			this.bits[i] = this.bits[i+1];
+		}
+	}
 	public int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
 		int aux = numero;
