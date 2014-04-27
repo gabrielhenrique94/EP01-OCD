@@ -12,14 +12,41 @@ class Inteiro{
 
 	Inteiro(int tamanho, int[] numero){
 		this.bits = new int[tamanho];
-		for(int i = 0 ; i< tamanho; i++){
-			if(i == numero.length)
+		for(int i = 0 ; i < tamanho; i++){
+			if(i >= numero.length)
 				this.bits[i] = 0;
 			else if(numero[i] == 0 || numero[i] == 1)
 				this.bits[i] = numero[i];
-			else
-				System.err.print("Inteiro@contrutor: vetor contem numeros que não são 0 ou 1");
+			else{
+				System.err.println("Inteiro@contrutor: vetor contem numeros que não são 0 ou 1");
+				break;
+			}
 		}
+	}
+	public int max(int a, int b){
+		return (a > b )? a : b;
+	}
+
+	public static Inteiro soma(int tamanho,Inteiro int1, Inteiro int2){
+		int[] soma = new int[tamanho];
+		int vem = 0;
+		for(int i = 0 ; i < tamanho; i++){
+			if(i >= int1.bits.length)
+				soma[i] = int2.bits[i];
+			else if(i >= int2.bits.length)
+				soma[i] = int1.bits[i];
+			else{
+				int sum = int1.bits[i] + int2.bits[i] + vem;
+				if(sum > 1){
+					sum -= 2;
+					vem = 1;
+				}else{
+					vem = 0;
+				}
+				soma[i] = sum;
+			}
+		}
+		return new Inteiro(tamanho,soma);
 	}
 
 	public void Rshift(){
@@ -69,8 +96,11 @@ class Inteiro{
 		return result;
 	}
 	public static void main(String[] args){
-		Inteiro i = new Inteiro(32,512123);
+		Inteiro i = new Inteiro(32,200);
+		Inteiro a = new Inteiro(32,105);
 		System.out.println(i);
 		System.out.println(i.toInteger());
+		Inteiro soma = Inteiro.soma(32, i,a);
+		System.out.println(soma.toInteger());
 	}
 }
