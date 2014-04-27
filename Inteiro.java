@@ -1,6 +1,6 @@
 class Inteiro{
 	
-	private int[] bits;
+	protected int[] bits;
 	
 	/**
 	* construtor que incializa o interio com um valor pre-definido
@@ -20,8 +20,8 @@ class Inteiro{
 			else
 				System.err.print("Inteiro@contrutor: vetor contem numeros que não são 0 ou 1");
 		}
-
 	}
+
 	public void Rshift(){
 		int aux;
 		for(int i = 0; i <	(this.bits.length - 1);i++){
@@ -35,6 +35,7 @@ class Inteiro{
 			this.bits[i] = this.bits[i+1];
 		}
 	}
+
 	public int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
 		int aux = numero;
