@@ -1,21 +1,26 @@
 class Inteiro{
 	
 	protected int[] bits;
+	private static final int TAMANHO = 8;
 	
 	/**
 	* construtor que incializa o interio com um valor pre-definido
 	* @param valor inicial que o numero recebera
 	*/
-	Inteiro(int tamanho, int numero){
+	private Inteiro(int tamanho, int numero){
 		this.bits = this.toBinario(tamanho, numero);
 	}
-
-	Inteiro (int tamanho){
-		//aqui eu me aproveito do fato do java inicializar tudo com 0
-		this.bits = new int[tamanho];
+	
+	public Inteiro(int numero) {
+		this.bits = this.toBinario(TAMANHO, numero);
 	}
+//
+//	private Inteiro (int tamanho){
+//		//aqui eu me aproveito do fato do java inicializar tudo com 0
+//		this.bits = new int[tamanho];
+//	}
 
-	Inteiro(int tamanho, int[] numero){
+	private Inteiro(int tamanho, int[] numero){
 		this.bits = new int[tamanho];
 		for(int i = 0 ; i < tamanho; i++){
 			if(i >= numero.length)
@@ -23,7 +28,7 @@ class Inteiro{
 			else if(numero[i] == 0 || numero[i] == 1)
 				this.bits[i] = numero[i];
 			else{
-				System.err.println("Inteiro.contrutor: vetor contem numeros que nÃ£o sÃ£o 0 ou 1");
+				System.err.println("Inteiro.contrutor: vetor contem numeros que nao sao 0 ou 1");
 				break;
 			}
 		}
@@ -34,26 +39,37 @@ class Inteiro{
 	}
 
 	public Inteiro complementoDe2(){
-		Inteiro notThis = new Inteiro(this.bits.length);
+		Inteiro notThis = new Inteiro(this.bits.length, new int[this.bits.length]);
 		for(int a = 0; a < this.bits.length; a++)
 			notThis.bits[a] = (this.bits[a] == 0)? 1 : 0;
 		return soma(notThis.bits.length,notThis, new Inteiro(1,1));
 	}
 
+
 	public static Inteiro subtrai(int tamanho, Inteiro int1, Inteiro int2){
 		return soma(tamanho, int1, int2.complementoDe2());
 	}
+	
+	public static int[] subtrai(int tamanho, int[] int1, int[] int2){
+		return soma(tamanho, int1, new Inteiro(int2.length, int2).complementoDe2().bits);
+	}
 
 	public static Inteiro soma(int tamanho,Inteiro int1, Inteiro int2){
+		return new Inteiro(tamanho,soma(tamanho, int1.bits, int2.bits));
+	}
+	
+	public static int[] soma(int tamanho,int[] int1, int[] int2){
 		int[] soma = new int[tamanho];
 		int vem = 0;
 		for(int i = 0 ; i < tamanho; i++){
-			if(i >= int1.bits.length)
-				soma[i] = int2.bits[i];
-			else if(i >= int2.bits.length)
-				soma[i] = int1.bits[i];
-			else{
-				int sum = int1.bits[i] + int2.bits[i] + vem;
+			if(i >= int1.length) {
+				soma[i] = int2[i] + vem;
+				vem = 0;
+			} else if(i >= int2.length) {
+				soma[i] = int1[i] + vem;
+				vem = 0;
+			} else{
+				int sum = int1[i] + int2[i] + vem;
 				if(sum > 1){
 					sum -= 2;
 					vem = 1;
@@ -63,19 +79,104 @@ class Inteiro{
 				soma[i] = sum;
 			}
 		}
-		return new Inteiro(tamanho,soma);
+		return soma;
 	}
 
 	public void Rshift(){
-		int aux;
-		for(int i = 0; i <	(this.bits.length - 1);i++)
-			this.bits[i+1] = this.bits[i];
+		this.bits = rightShift(this.bits);
 	}
 
 	public void Lshift(){
-		int aux;
-		for(int i = 0; i <	(this.bits.length - 1);i++)
-			this.bits[i] = this.bits[i+1];
+		this.bits = leftShift(this.bits);
+	}
+	
+	public static int[] rightShift(int[] bits) {
+		for(int i = 0; i < (bits.length - 1); i++)
+			bits[i] = bits[i+1];
+		if (bits[bits.length - 2] == 0)
+			bits[bits.length - 1] = 0;
+		else
+			bits[bits.length - 1] = 1;
+		return bits;
+	}
+	
+	public static int[] leftShift(int[] bits) {
+		for(int i = (bits.length - 1); i >0; i--)
+			bits[i] = bits[i-1];
+		bits[0] = 0;
+		return bits;
+	}
+	
+	/**
+	 * Realiza a multiplicação de dois números binários através do algoritmo de Booth
+	 * @param multiplicando
+	 * @param multiplicador
+	 * @return Objeto Inteiro com resultado da multiplicação
+	 */
+	public static Inteiro multiplica(Inteiro multiplicando, Inteiro multiplicador) {
+		int anterior = 0;
+		int[] multiplicadorBits = multiplicador.getBits();
+		int multiplicadorLenghBits = multiplicador.getLenghofBits();
+		int[] produto = soma(TAMANHO, new int[TAMANHO], multiplicadorBits);
+		for (int x=0; x < multiplicadorLenghBits; x++) {
+			int atual = multiplicadorBits[x];
+			if (atual == 1 && anterior == 0) {
+				produto = subtraiMetadeEsq(multiplicando.getBits(), produto);
+			} else if (atual == 0 && anterior == 1){
+				produto = somaMetadeEsq(multiplicando.getBits(), produto);
+			}
+			produto = rightShift(produto);
+			anterior = atual;
+		}
+		return new Inteiro(TAMANHO, produto);
+	}
+	
+
+	
+	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
+		if (produto.length == 8) {
+			int[] metadeEsq = getMetadeEsq(produto); 
+			int[] metadeEsqSomada = soma(4, bitsMultiplicando, metadeEsq);
+			produto = novaMetadeEsq(produto, metadeEsqSomada);
+		}
+		return produto;
+	}
+	
+	private static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
+		if (produto.length == 8) {
+			int[] metadeEsq = getMetadeEsq(produto); 
+			int[] metadeEsqSubtraida = subtrai(4, metadeEsq, bitsMultiplicando);
+			produto = novaMetadeEsq(produto, metadeEsqSubtraida);
+		}
+		return produto;
+	}
+	/**
+	 * Retorna a metade esquerda de um binario de 8 bits
+	 */
+	private static int[] getMetadeEsq(int[] bits) {
+		int[] metadeEsq = new int[4];
+		for (int i=4; i<8;i++) {
+			metadeEsq[i-4] = bits[i];
+		}
+		return metadeEsq;
+	}
+	
+	/**
+	 * Acrescenta a metade esquerda processada de volta a um binario de 8 bits
+	 */
+	private static int[] novaMetadeEsq(int[] bits, int[] metadeEsq) {
+		for (int i=4; i<8;i++) {
+			bits[i] = metadeEsq[i-4];
+		}
+		return bits;
+	}
+	
+	public int[] getBits() {
+		return bits.clone();
+	}
+	
+	private int getLenghofBits() {
+		return bits.length;
 	}
 
 	public int[] toBinario(int tamanho,int numero){
@@ -112,13 +213,15 @@ class Inteiro{
 	}
 
 	public static void main(String[] args){
-		Inteiro i = new Inteiro(32,200);
-		Inteiro a = new Inteiro(32,105);
-		System.out.println(i);
-		System.out.println(i.toInteger());
-		Inteiro soma = Inteiro.soma(32, i,a);
-		System.out.println(soma.toInteger());
-		Inteiro subtracao = Inteiro.subtrai(32,i,a);
-		System.out.println(subtracao.toInteger());
+//		Inteiro i = new Inteiro(32,200);
+//		Inteiro a = new Inteiro(32,105);
+//		System.out.println(i);
+//		System.out.println(i.toInteger());
+//		Inteiro soma = Inteiro.soma(32, i,a);
+//		System.out.println(soma.toInteger());
+//		Inteiro subtracao = Inteiro.subtrai(32,i,a);
+		Inteiro i = new Inteiro(4,7);
+		Inteiro a = new Inteiro(4,7);
+		System.out.println(multiplica(a, i).toInteger());
 	}
 }
