@@ -1,6 +1,7 @@
 class Inteiro{
 	
 	protected int[] bits;
+	private boolean negativo;
 	private static final int TAMANHO = 8;
 	
 	/**
@@ -39,10 +40,15 @@ class Inteiro{
 	}
 
 	public Inteiro complementoDe2(){
-		Inteiro notThis = new Inteiro(this.bits.length, new int[this.bits.length]);
-		for(int a = 0; a < this.bits.length; a++)
-			notThis.bits[a] = (this.bits[a] == 0)? 1 : 0;
-		return soma(notThis.bits.length,notThis, new Inteiro(1,1));
+		return new Inteiro(this.bits.length, complementoDe2(this.bits));
+	}
+	
+	private static int[] complementoDe2(int[] bits) {
+		int[] otherBits = new int[bits.length];
+		for(int a = 0; a < bits.length; a++)
+			otherBits[a] = (bits[a] == 0)? 1 : 0;
+		int[] soma1 = {1};
+		return soma(otherBits.length,otherBits, soma1);
 	}
 
 
@@ -181,6 +187,11 @@ class Inteiro{
 
 	public int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
+		this.negativo = false;
+		if (numero<0) {
+			negativo = true;
+			numero *= -1;
+		}
 		int aux = numero;
 		int pBinario = 0;
 		while(aux >= 2){
@@ -192,6 +203,8 @@ class Inteiro{
 		if(aux == 1)
 			if(pBinario < tamanho)
 				binario[pBinario]  = 1;
+		if (negativo)
+			return complementoDe2(binario);
 		return binario;
 	}
 
@@ -205,23 +218,23 @@ class Inteiro{
 	public int toInteger(){
 		int p2 = 1;
 		int result = 0;
+		int[] bitsPraInt = this.bits;
+		if (negativo)
+			bitsPraInt = complementoDe2(bitsPraInt);
 		for(int i = 0 ; i < this.bits.length; i++){
-			result += this.bits[i] * p2;
+			result += bitsPraInt[i] * p2;
 			p2 *= 2;
 		}
 		return result;
 	}
 
 	public static void main(String[] args){
-//		Inteiro i = new Inteiro(32,200);
-//		Inteiro a = new Inteiro(32,105);
-//		System.out.println(i);
-//		System.out.println(i.toInteger());
-//		Inteiro soma = Inteiro.soma(32, i,a);
-//		System.out.println(soma.toInteger());
-//		Inteiro subtracao = Inteiro.subtrai(32,i,a);
-		Inteiro i = new Inteiro(4,7);
-		Inteiro a = new Inteiro(4,7);
-		System.out.println(multiplica(a, i).toInteger());
+		Inteiro i = new Inteiro(32,200);
+		Inteiro a = new Inteiro(32,105);
+		System.out.println(i);
+		System.out.println(i.toInteger());
+		Inteiro soma = Inteiro.soma(32, i,a);
+		System.out.println(soma.toInteger());
+		Inteiro subtracao = Inteiro.subtrai(32,i,a);
 	}
 }
