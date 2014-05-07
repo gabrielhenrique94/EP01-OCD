@@ -2,18 +2,17 @@ class Inteiro{
 	
 	protected int[] bits;
 	private boolean negativo;
-	private static final int TAMANHO = 8;
 	
 	/**
 	* construtor que incializa o interio com um valor pre-definido
 	* @param valor inicial que o numero recebera
 	*/
-	private Inteiro(int tamanho, int numero){
+	public Inteiro(int tamanho, int numero){
 		this.bits = this.toBinario(tamanho, numero);
 	}
 	
 	public Inteiro(int numero) {
-		this.bits = this.toBinario(TAMANHO, numero);
+		this.bits = this.toBinario((numero+"").length(), numero);
 	}
 //
 //	private Inteiro (int tamanho){
@@ -123,7 +122,8 @@ class Inteiro{
 		int anterior = 0;
 		int[] multiplicadorBits = multiplicador.getBits();
 		int multiplicadorLenghBits = multiplicador.getLenghofBits();
-		int[] produto = soma(TAMANHO, new int[TAMANHO], multiplicadorBits);
+		int tamanhoProduto = multiplicadorLenghBits*2;
+		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], multiplicadorBits);
 		for (int x=0; x < multiplicadorLenghBits; x++) {
 			int atual = multiplicadorBits[x];
 			if (atual == 1 && anterior == 0) {
@@ -134,24 +134,24 @@ class Inteiro{
 			produto = rightShift(produto);
 			anterior = atual;
 		}
-		return new Inteiro(TAMANHO, produto);
+		return new Inteiro(tamanhoProduto, produto);
 	}
 	
 
 	
 	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
-		if (produto.length == 8) {
+		if (produto.length  % 2 == 0) {
 			int[] metadeEsq = getMetadeEsq(produto); 
-			int[] metadeEsqSomada = soma(4, bitsMultiplicando, metadeEsq);
+			int[] metadeEsqSomada = soma(metadeEsq.length, bitsMultiplicando, metadeEsq);
 			produto = novaMetadeEsq(produto, metadeEsqSomada);
 		}
 		return produto;
 	}
 	
 	private static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
-		if (produto.length == 8) {
+		if (produto.length % 2 == 0) {
 			int[] metadeEsq = getMetadeEsq(produto); 
-			int[] metadeEsqSubtraida = subtrai(4, metadeEsq, bitsMultiplicando);
+			int[] metadeEsqSubtraida = subtrai(metadeEsq.length, metadeEsq, bitsMultiplicando);
 			produto = novaMetadeEsq(produto, metadeEsqSubtraida);
 		}
 		return produto;
@@ -160,9 +160,11 @@ class Inteiro{
 	 * Retorna a metade esquerda de um binario de 8 bits
 	 */
 	private static int[] getMetadeEsq(int[] bits) {
-		int[] metadeEsq = new int[4];
-		for (int i=4; i<8;i++) {
-			metadeEsq[i-4] = bits[i];
+		int tamanhoBits = bits.length;
+		int tamanhoMetadeEsq = tamanhoBits/2;
+		int[] metadeEsq = new int[tamanhoMetadeEsq];
+		for (int i=tamanhoMetadeEsq; i<tamanhoBits;i++) {
+			metadeEsq[i-tamanhoMetadeEsq] = bits[i];
 		}
 		return metadeEsq;
 	}
@@ -171,8 +173,10 @@ class Inteiro{
 	 * Acrescenta a metade esquerda processada de volta a um binario de 8 bits
 	 */
 	private static int[] novaMetadeEsq(int[] bits, int[] metadeEsq) {
-		for (int i=4; i<8;i++) {
-			bits[i] = metadeEsq[i-4];
+		int finalMetadeEsq = bits.length;
+		int inicioMetadeEsq = finalMetadeEsq/2;
+		for (int i=inicioMetadeEsq; i<finalMetadeEsq;i++) {
+			bits[i] = metadeEsq[i-inicioMetadeEsq];
 		}
 		return bits;
 	}
@@ -229,12 +233,13 @@ class Inteiro{
 	}
 
 	public static void main(String[] args){
-		Inteiro i = new Inteiro(32,200);
-		Inteiro a = new Inteiro(32,105);
-		System.out.println(i);
-		System.out.println(i.toInteger());
-		Inteiro soma = Inteiro.soma(32, i,a);
-		System.out.println(soma.toInteger());
-		Inteiro subtracao = Inteiro.subtrai(32,i,a);
+		Inteiro i = new Inteiro(32, 2);
+		Inteiro a = new Inteiro(32, 10);
+//		System.out.println(i);
+//		System.out.println(i.toInteger());
+//		Inteiro soma = Inteiro.soma(32, i,a);
+//		System.out.println(soma.toInteger());
+//		Inteiro subtracao = Inteiro.subtrai(32,i,a);
+		System.out.println(multiplica(i, a).toInteger());
 	}
 }
