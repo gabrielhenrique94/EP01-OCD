@@ -1,6 +1,8 @@
 class Inteiro{
 	
+	// a posição 0 corresponde ao digito mais a direita de um numero
 	protected int[] bits;
+	// true para numero negativo, false para numero positivo
 	private boolean negativo;
 	
 	/**
@@ -189,7 +191,7 @@ class Inteiro{
 		return bits.length;
 	}
 
-	public int[] toBinario(int tamanho,int numero){
+	private int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
 		this.negativo = false;
 		if (numero<0) {
@@ -235,11 +237,11 @@ class Inteiro{
 	public static void main(String[] args){
 		Inteiro i = new Inteiro(32, 2);
 		Inteiro a = new Inteiro(32, 10);
-//		System.out.println(i);
-//		System.out.println(i.toInteger());
-//		Inteiro soma = Inteiro.soma(32, i,a);
-//		System.out.println(soma.toInteger());
-//		Inteiro subtracao = Inteiro.subtrai(32,i,a);
+		System.out.println(i);
+		System.out.println(i.toInteger());
+		Inteiro soma = Inteiro.soma(32, i,a);
+		System.out.println(soma.toInteger());
+		Inteiro subtracao = Inteiro.subtrai(32,i,a);
 		System.out.println(multiplica(i, a).toInteger());
 	}
 }
