@@ -67,27 +67,18 @@ class Inteiro{
 	
 	public static int[] soma(int tamanho,int[] int1, int[] int2){
 		int[] soma = new int[tamanho];
-		int vem = 0;
+		boolean vem = false;//0
+		boolean sum ;
 		for(int i = 0 ; i < tamanho; i++){
-			if(i >= int1.length) {
-				soma[i] = int2[i] + vem;
-				vem = 0;
-			} else if(i >= int2.length) {
-				soma[i] = int1[i] + vem;
-				vem = 0;
-			} else{
-				int sum = int1[i] + int2[i] + vem;
-				if(sum > 1){
-					sum -= 2;
-					vem = 1;
-				}else{
-					vem = 0;
-				}
-				soma[i] = sum;
-			}
+			boolean B1 = (i < int1.length) ? (int1[i] == 1) : false;
+			boolean B2 = (i < int2.length) ? int2[i] == 1 : false;
+			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
+			sum = (B2 ^ B1 ^ vem) || (B1&&B2&&vem);
+			soma[i] = (sum)?1:0;
 		}
 		return soma;
 	}
+
 
 	public void Rshift(){
 		this.bits = rightShift(this.bits);
@@ -237,7 +228,7 @@ class Inteiro{
 	public static void main(String[] args){
 		Inteiro i = new Inteiro(32, 2);
 		Inteiro a = new Inteiro(32, 10);
-		System.out.println(i);
+		System.out.println(a);
 		System.out.println(i.toInteger());
 		Inteiro soma = Inteiro.soma(32, i,a);
 		System.out.println(soma.toInteger());
