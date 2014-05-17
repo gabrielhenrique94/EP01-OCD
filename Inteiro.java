@@ -1,6 +1,6 @@
 class Inteiro{
 	
-	// a posição 0 corresponde ao digito mais a direita de um numero
+	// a posiÃ§Ã£o 0 corresponde ao digito mais a direita de um numero
 	protected int[] bits;
 	// true para numero negativo, false para numero positivo
 	private boolean negativo;
@@ -72,8 +72,8 @@ class Inteiro{
 		for(int i = 0 ; i < tamanho; i++){
 			boolean B1 = (i < int1.length) ? (int1[i] == 1) : false;
 			boolean B2 = (i < int2.length) ? int2[i] == 1 : false;
-			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
 			sum = (B2 ^ B1 ^ vem) || (B1&&B2&&vem);
+			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
 			soma[i] = (sum)?1:0;
 		}
 		return soma;
@@ -106,10 +106,10 @@ class Inteiro{
 	}
 	
 	/**
-	 * Realiza a multiplicação de dois números binários através do algoritmo de Booth
+	 * Realiza a multiplicaÃ§Ã£o de dois nÃºmeros binÃ¡rios atravÃ©s do algoritmo de Booth
 	 * @param multiplicando
 	 * @param multiplicador
-	 * @return Objeto Inteiro com resultado da multiplicação
+	 * @return Objeto Inteiro com resultado da multiplicaÃ§Ã£o
 	 */
 	public static Inteiro multiplica(Inteiro multiplicando, Inteiro multiplicador) {
 		int anterior = 0;
@@ -130,7 +130,26 @@ class Inteiro{
 		return new Inteiro(tamanhoProduto, produto);
 	}
 	
-
+	public static Inteiro[] divide(Inteiro dividendo, Inteiro divisor) {
+		int tamanhoAux = dividendo.getLenghofBits()*2;
+		int[] dividendoAux = new int[tamanhoAux];
+		int[] divisorAux = novaMetadeEsq(new int[tamanhoAux], divisor.getBits());
+		dividendoAux = soma(tamanhoAux, dividendoAux, dividendo.getBits());
+		for(int i=0; i<dividendo.getLenghofBits(); i++) {
+			dividendoAux = leftShift(dividendoAux);
+			dividendoAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
+	
+			// Verifica se o resultado da subtracao mudou o sinal do dividendo
+			if(dividendoAux[tamanhoAux-1] != (dividendo.negativo?1:0)) {
+				// Se o sinal mudou, volta ao que estava antes
+				dividendoAux = soma(tamanhoAux, dividendoAux, divisorAux);
+				dividendoAux[0] = 0;
+			}
+			else dividendoAux[0] = 1;
+		}
+		return new Inteiro[] { new Inteiro(tamanhoAux/2, getMetadeEsq(dividendoAux)),
+			new Inteiro(tamanhoAux/2, getMetadeDir(dividendoAux)) };
+	}
 	
 	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
 		if (produto.length  % 2 == 0) {
@@ -149,6 +168,7 @@ class Inteiro{
 		}
 		return produto;
 	}
+	
 	/**
 	 * Retorna a metade esquerda de um binario de 8 bits
 	 */
@@ -170,6 +190,31 @@ class Inteiro{
 		int inicioMetadeEsq = finalMetadeEsq/2;
 		for (int i=inicioMetadeEsq; i<finalMetadeEsq;i++) {
 			bits[i] = metadeEsq[i-inicioMetadeEsq];
+		}
+		return bits;
+	}
+	
+	/**
+	 * Retorna a metade direita de um binario de 8 bits
+	 */
+	private static int[] getMetadeDir(int[] bits) {
+		int tamanhoBits = bits.length;
+		int tamanhoMetadeDir = tamanhoBits/2;
+		int[] metadeDir = new int[tamanhoMetadeDir];
+		for (int i=0; i<tamanhoMetadeDir;i++) {
+			metadeDir[i] = bits[i];
+		}
+		return metadeDir;
+	}
+	
+	/**
+	 * Acrescenta a metade direita processada de volta a um binario de 8 bits
+	 */
+	private static int[] novaMetadeDir(int[] bits, int[] metadeDir) {
+		int finalMetadeDir = bits.length;
+		int inicioMetadeDir = finalMetadeDir/2;
+		for (int i=0; i<inicioMetadeDir; i++) {
+			bits[i] = metadeDir[i];
 		}
 		return bits;
 	}
@@ -226,13 +271,20 @@ class Inteiro{
 	}
 
 	public static void main(String[] args){
-		Inteiro i = new Inteiro(32, 2);
-		Inteiro a = new Inteiro(32, 10);
-		System.out.println(a);
-		System.out.println(i.toInteger());
-		Inteiro soma = Inteiro.soma(32, i,a);
-		System.out.println(soma.toInteger());
-		Inteiro subtracao = Inteiro.subtrai(32,i,a);
-		System.out.println(multiplica(i, a).toInteger());
+		int tamanho = 32;
+		Inteiro i = new Inteiro(tamanho, 17);
+		Inteiro a = new Inteiro(tamanho, 2);
+		Inteiro soma = Inteiro.soma(tamanho, i, a);
+		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
+		Inteiro multiplicacao = Inteiro.multiplica(i, a);
+		Inteiro[] divisao = Inteiro.divide(i, a);
+		
+		System.out.println("a = " + a + " = " + a.toInteger()); // a
+		System.out.println("i = " + i + " = " + i.toInteger()); // i
+		System.out.println("i + a = " + soma + " = " + soma.toInteger()); // i + a
+		System.out.println("i - a = " + subtracao + " = " + subtracao.toInteger()); // i - a
+		System.out.println("i * a = " + multiplicacao + " = " + multiplicacao.toInteger()); // i * a
+		System.out.println("i / a = " + divisao[1] + " = " + divisao[1].toInteger()); // i / a
+		System.out.println("i % a = " + divisao[0] + " = " + divisao[0].toInteger()); // i % a
 	}
 }
