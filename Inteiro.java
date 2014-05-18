@@ -4,11 +4,8 @@ class Inteiro implements Cloneable{
 	
 	public static final Inteiro ZERO = new Inteiro(0);
 	
-	// a posi��o 0 corresponde ao digito mais a direita de um numero
-	private int[] bits;
-
-	// true para numero negativo, false para numero positivo
-	private boolean negativo;
+	// a posicao 0 corresponde ao digito mais a direita de um numero
+	protected int[] bits;
 	
 	/**
 	* construtor que incializa o interio com um valor pre-definido
@@ -19,7 +16,9 @@ class Inteiro implements Cloneable{
 	}
 	
 	public Inteiro(int numero) {
-		this.bits = this.toBinario(numero);
+		int size = 0;
+		for (int n = numero; n != 0 ; n = n/2) size++;
+		this.bits = this.toBinario((size + 1), numero);
 	}
 
 	private Inteiro() {}
@@ -31,20 +30,27 @@ class Inteiro implements Cloneable{
 
 
 	private Inteiro(int tamanho, int[] numero){
-		this.bits = new int[tamanho];
-		for(int i = 0 ; i < tamanho; i++){
-			if(i >= numero.length)
-				this.bits[i] = 0;
-			else if(numero[i] == 0 || numero[i] == 1)
-				this.bits[i] = numero[i];
-			else{
-				System.err.println("Inteiro.contrutor: vetor contem numeros que nao sao 0 ou 1");
-				break;
-			}
-		}
+		this.bits = copiaBinario(tamanho,numero);
 	}
 
-	public int max(int a, int b){
+	private static int[] copiaBinario(int tamanho, int[] numero){
+		boolean negativo = numero[numero.length - 1] == 1;
+		if(negativo) numero = complementoDe2(numero);
+		int[] result = new int[tamanho];
+		for(int i = 0 ; i < tamanho; i++){
+			if(i >= numero.length)
+				result[i] = 0;
+			else if(numero[i] == 0 || numero[i] == 1)
+				result[i] = numero[i];
+			else{
+				System.err.println("Inteiro.contrutor: vetor contem numeros que nao sao 0 ou 1");
+				System.exit(1);
+			}
+		}
+		if(negativo) result = complementoDe2(result);
+		return result;
+	}
+	public static int max(int a, int b){
 		return (a > b )? a : b;
 	}
 
@@ -56,10 +62,8 @@ class Inteiro implements Cloneable{
 		int[] otherBits = new int[bits.length];
 		for(int a = 0; a < bits.length; a++)
 			otherBits[a] = (bits[a] == 0)? 1 : 0;
-		int[] soma1 = {1};
-		return soma(otherBits.length,otherBits, soma1);
+		return soma1(otherBits);//soma 1 a otherBits
 	}
-
 
 	public static Inteiro subtrai(int tamanho, Inteiro int1, Inteiro int2){
 		return soma(tamanho, int1, int2.complementoDe2());
@@ -83,18 +87,20 @@ class Inteiro implements Cloneable{
 	
 	public static int[] soma(int tamanho,int[] int1, int[] int2){
 		int[] soma = new int[tamanho];
+		//essas duas linhas normalizam os tamanhos dos numeros;
+		int[] n1 = copiaBinario(tamanho, int1);
+		int[] n2 = copiaBinario(tamanho, int2);
 		boolean vem = false;//0
 		boolean sum ;
 		for(int i = 0 ; i < tamanho; i++){
-			boolean B1 = (i < int1.length) ? (int1[i] == 1) : false;
-			boolean B2 = (i < int2.length) ? int2[i] == 1 : false;
+			boolean B1 = n1[i] == 1;
+			boolean B2 = n2[i] == 1;
 			sum = (B2 ^ B1 ^ vem) || (B1&&B2&&vem);
 			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
-			soma[i] = (sum)?1:0;
+			soma[i] = (sum) ? 1 : 0;
 		}
 		return soma;
 	}
-
 
 	public void Rshift(){
 		this.bits = rightShift(this.bits);
@@ -128,7 +134,7 @@ class Inteiro implements Cloneable{
 		bits[0] = 0;
 		return bits;
 	}
-	
+
 	/**
 	 * Realiza a multiplicação de dois números binários através do algoritmo de Booth
 	 * @param multiplicando
@@ -136,13 +142,25 @@ class Inteiro implements Cloneable{
 	 * @return Objeto Inteiro com resultado da multiplicação
 	 */
 	public static Inteiro multiplica(Inteiro multiplicando, Inteiro multiplicador) {
+	
+		//checa se os numeros são negativos
+		boolean isMultiplicadorNegativo = multiplicador.bits[multiplicador.bits.length - 1] == 1;
+		boolean isMultiplicandoNegativo = multiplicando.bits[multiplicando.bits.length - 1] == 1;
+		//caso positivo, tira os numeros de complemento de dois
+		int[] bitsMultiplicador = (isMultiplicadorNegativo) ? complementoDe2(multiplicador.bits) : multiplicador.bits;
+		int[] bitsMultiplicando = (isMultiplicandoNegativo) ? complementoDe2(multiplicando.bits) : multiplicando.bits;
+		// normaliza os tamanhos
+		int tamanho = max(bitsMultiplicando.length, bitsMultiplicador.length);
+		bitsMultiplicador = copiaBinario(tamanho,bitsMultiplicador);
+		bitsMultiplicando = copiaBinario(tamanho,bitsMultiplicando);
+
+
 		int anterior = 0;
-		int[] multiplicadorBits = multiplicador.getBits();
-		int multiplicadorLenghBits = multiplicador.getLenghofBits();
-		int tamanhoProduto = multiplicadorLenghBits*2;
-		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], multiplicadorBits);
-		for (int x=0; x < multiplicadorLenghBits; x++) {
-			int atual = multiplicadorBits[x];
+		int tamanhoProduto = multiplicador.bits.length*2;
+		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], bitsMultiplicador);
+		
+		for (int x = 0; x < bitsMultiplicador.length; x++) {
+			int atual = bitsMultiplicador[x];
 			if (atual == 1 && anterior == 0) {
 				produto = subtraiMetadeEsq(multiplicando.getBits(), produto);
 			} else if (atual == 0 && anterior == 1){
@@ -151,29 +169,50 @@ class Inteiro implements Cloneable{
 			produto = rightShift(produto);
 			anterior = atual;
 		}
-		return new Inteiro(tamanhoProduto, produto);
+		//caso apenas um deles for negativo , é preciso colocar o complemento de 2 no resultado,
+		//pois se os dois forem positivos , ou os dois negativos, o resultado será positivo
+		if(isMultiplicandoNegativo ^ isMultiplicadorNegativo){
+			produto = complementoDe2(produto);
+		}
+		return new Inteiro(tamanhoProduto/2, produto);
 	}
 	
 
 	public static Inteiro[] divide(Inteiro dividendo, Inteiro divisor) {
-		int tamanhoAux = dividendo.getLenghofBits()*2;
-		int[] dividendoAux = new int[tamanhoAux];
-		int[] divisorAux = novaMetadeEsq(new int[tamanhoAux], divisor.getBits());
-		dividendoAux = soma(tamanhoAux, dividendoAux, dividendo.getBits());
-		for(int i=0; i<dividendo.getLenghofBits(); i++) {
+		int tamanhoAux = dividendo.getLengthOfBits()*2;
+
+		//checa se os numeros são negativos
+		boolean isDividendoNegativo = dividendo.bits[dividendo.bits.length - 1] == 1;
+		boolean isDivisorNegativo = divisor.bits[divisor.bits.length - 1] == 1;
+		//caso positivo, tira os numeros de complemento de dois
+		int[] bitsDividendo = (isDividendoNegativo) ? complementoDe2(dividendo.bits) : dividendo.bits;
+		int[] bitsDivisor = (isDivisorNegativo) ? complementoDe2(divisor.bits) : divisor.bits;
+
+
+		int[] dividendoAux = copiaBinario(tamanhoAux, bitsDividendo);
+		int[] divisorAux = novaMetadeEsq(new int[tamanhoAux], bitsDivisor);
+
+		for(int i=0; i<dividendo.getLengthOfBits(); i++) {
 			dividendoAux = leftShift(dividendoAux);
 			dividendoAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
-	
 			// Verifica se o resultado da subtracao mudou o sinal do dividendo
-			if(dividendoAux[tamanhoAux-1] != (dividendo.negativo?1:0)) {
+			if(dividendoAux[tamanhoAux-1] != (dividendo.bits[dividendo.bits.length - 1])) {
 				// Se o sinal mudou, volta ao que estava antes
 				dividendoAux = soma(tamanhoAux, dividendoAux, divisorAux);
 				dividendoAux[0] = 0;
 			}
 			else dividendoAux[0] = 1;
 		}
+		int[] quociente = null;
+		//caso apenas um deles for negativo , é preciso colocar o complemento de 2 no resultado,
+		//pois se os dois forem positivos , ou os dois negativos, o resultado será positivo
+		if(isDividendoNegativo ^ isDivisorNegativo){
+			quociente = complementoDe2(getMetadeDir(dividendoAux));
+		}else{
+			quociente = getMetadeDir(dividendoAux);
+		}
 		return new Inteiro[] { new Inteiro(tamanhoAux/2, getMetadeEsq(dividendoAux)),
-			new Inteiro(tamanhoAux/2, getMetadeDir(dividendoAux)) };
+			new Inteiro(tamanhoAux/2, quociente)};
 	}
 
 	
@@ -184,6 +223,30 @@ class Inteiro implements Cloneable{
 			produto = novaMetadeEsq(produto, metadeEsqSomada);
 		}
 		return produto;
+	}
+
+	/**
+	* Adiciona 1 ao binario passado como parametro
+	*/
+	private static int[] soma1(int[] v){
+		int[] soma = new int[v.length];
+		boolean vem = false;//inicialização inutil;
+		boolean sum ;
+		boolean B1 = (v[0] == 1);
+		//assumindo vem = 0 e o primeiro bit = 1, 
+		//o resultado só fica com 1 na primeira casa caso o numero ao qual eu quero adicionar 1 tenha a primeira casa = 0;
+		sum = !B1;
+		//assumindo vem = 0 , e o primeiro bit = 1, só "vai" 1 caso o numero ao qual eu quero adicionar 1 tenha o primeiro bit = 1
+		vem = B1; 
+		soma[0] = (sum) ? 1 : 0;
+		for(int i = 1; i < v.length; i++){
+			//aqui eu posso assumir que o segundo numero que eu estou adicionando é zero, ou seja, estou na verdade fazendo B1 + vem
+			B1 = (v[i] == 1);
+			sum = (B1 ^ vem);
+			vem = (B1 && vem);
+			soma[i] = (sum) ? 1 : 0;
+		}
+		return soma;
 	}
 	
 	private static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
@@ -249,21 +312,21 @@ class Inteiro implements Cloneable{
 		return bits.clone();
 	}
 	
-	private int getLenghofBits() {
+	private int getLengthOfBits() {
 		return bits.length;
 	}
 
 	private int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
-		this.negativo = false;
-		if (numero<0) {
-			negativo = true;
-			numero *= -1;
-		}
+		boolean negativo = (numero < 0);
+		if(negativo) numero = numero * -1;
 		int aux = numero;
 		int pBinario = 0;
 		while(aux >= 2){
-			if(pBinario == tamanho) break;
+			if(pBinario == tamanho) {
+				System.err.printf("Esse número não cabe em %d bits", tamanho);
+				System.exit(1);
+			}
 			binario[pBinario] = aux%2;
 			pBinario++;
 			aux = aux/2;
@@ -276,23 +339,10 @@ class Inteiro implements Cloneable{
 		return binario;
 	}
 	
-	private int[] toBinario(int numero){
-		ArrayList<Integer> binario = new ArrayList<Integer>();
-		this.negativo = false;
-		if (numero<0) {
-			negativo = true;
-			numero *= -1;
-		}
-		int aux = numero;
-		while(aux >= 2){
-			binario.add(aux%2);
-			aux = aux/2;
-		}
-		binario.add(aux);
-		if (negativo)
-			return complementoDe2(getIntArray(binario));
-		return getIntArray(binario);
+	public boolean isNegativo(){ 
+		return this.bits[this.bits.length - 1] == 1; 
 	}
+	
 	
 	private static int[] getIntArray(ArrayList<Integer> arrayList) {
 		int[] binario = new int[arrayList.size()];
@@ -348,6 +398,7 @@ class Inteiro implements Cloneable{
 		int p2 = 1;
 		int result = 0;
 		int[] bitsPraInt = this.bits;
+		boolean negativo = bitsPraInt[bitsPraInt.length - 1] == 1;
 		if (negativo)
 			bitsPraInt = complementoDe2(bitsPraInt);
 		for(int i = 0 ; i < this.bits.length; i++){
@@ -357,22 +408,11 @@ class Inteiro implements Cloneable{
 		if(negativo) result = result * -1;
 		return result;
 	}
-//	
-//	public int toIntBinario(){
-//		int result = 0;
-//		int multiplicador = 1;
-//		for (int i=0; i<bits.length; i++) {
-//			result = this.bits[i] * multiplicador;
-//			multiplicador *= 10;
-//		}
-//		if (negativo)
-//			result *= -1;
-//		return result;
-//	}
+
 	
 	/**
-	 * Retorna a quantidade de digitos utilizadas para representar o n�mero
-	 * @return quantidade de digitos utilizadas para representar o n�mero
+	 * Retorna a quantidade de digitos utilizadas para representar o n�mero
+	 * @return quantidade de digitos utilizadas para representar o n�mero
 	 */
 	public int getNumberLength() {
 		int ultimoUm =0;
@@ -397,15 +437,12 @@ class Inteiro implements Cloneable{
 		return shortenedBits;
 	}
 	
-	public boolean isNegativo() {
-		return negativo;
-	}
+
 	
 	@Override
 	protected Inteiro clone() {
 		Inteiro i = new Inteiro();
 		i.bits = this.getBits();
-		i.negativo = this.negativo;
 		return i;
 	}
 

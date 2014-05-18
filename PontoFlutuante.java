@@ -12,18 +12,18 @@ public class PontoFlutuante {
 
 	
 	public PontoFlutuante(int numero) {
-		inicializaPontoFlutuante(new Inteiro(numero), Inteiro.ZERO);
+		inicializaPontoFlutuante(new Inteiro(numero), Inteiro.ZERO, numero>= 0);
 	}
 	
 	public PontoFlutuante(Inteiro i) {
-		inicializaPontoFlutuante(i, Inteiro.ZERO);
+		inicializaPontoFlutuante(i, Inteiro.ZERO, !i.isNegativo());
 	}
 	
 	public PontoFlutuante(Inteiro i, Inteiro resto) {
-		inicializaPontoFlutuante(i, resto);
+		inicializaPontoFlutuante(i, resto, !i.isNegativo());
 	}
 
-	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto) {
+	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto, boolean sinal) {
 		Inteiro mantissaAux = new Inteiro(TAMANHO_MANTISSA*2, 0);
 		mantissaAux.setNewBits(somaBits(i.getBits(), resto.getBits()));
 		if (i.isNegativo())
