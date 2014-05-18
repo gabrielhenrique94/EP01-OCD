@@ -16,11 +16,6 @@ class Inteiro{
 	public Inteiro(int numero) {
 		this.bits = this.toBinario((numero+"").length(), numero);
 	}
-//
-//	private Inteiro (int tamanho){
-//		//aqui eu me aproveito do fato do java inicializar tudo com 0
-//		this.bits = new int[tamanho];
-//	}
 
 	private Inteiro(int tamanho, int[] numero){
 		this.bits = new int[tamanho];
@@ -91,10 +86,7 @@ class Inteiro{
 	public static int[] rightShift(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
-		if (bits[bits.length - 2] == 0)
-			bits[bits.length - 1] = 0;
-		else
-			bits[bits.length - 1] = 1;
+		bits[bits.length - 1] = 0;
 		return bits;
 	}
 	
@@ -267,13 +259,14 @@ class Inteiro{
 			result += bitsPraInt[i] * p2;
 			p2 *= 2;
 		}
+		if(negativo) result = result * -1;
 		return result;
 	}
 
 	public static void main(String[] args){
 		int tamanho = 32;
 		Inteiro i = new Inteiro(tamanho, 17);
-		Inteiro a = new Inteiro(tamanho, 2);
+		Inteiro a = new Inteiro(tamanho, -2);
 		Inteiro soma = Inteiro.soma(tamanho, i, a);
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
