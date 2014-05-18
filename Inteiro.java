@@ -139,8 +139,9 @@ class Inteiro{
 			produto = rightShift(produto);
 			anterior = atual;
 		}
-
-		if(isMultiplicandoNegativo ^ isMultiplicadorNegativo){//caso apenas um deles for negativo , é preciso voltar a notação para complemento de 2
+		//caso apenas um deles for negativo , é preciso colocar o complemento de 2 no resultado,
+		//pois se os dois forem positivos , ou os dois negativos, o resultado será positivo
+		if(isMultiplicandoNegativo ^ isMultiplicadorNegativo){
 			produto = complementoDe2(produto);
 		}
 
@@ -155,7 +156,6 @@ class Inteiro{
 		for(int i=0; i<dividendo.getLengthOfBits(); i++) {
 			dividendoAux = leftShift(dividendoAux);
 			dividendoAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
-	
 			// Verifica se o resultado da subtracao mudou o sinal do dividendo
 			if(dividendoAux[tamanhoAux-1] != (dividendo.bits[dividendo.bits.length - 1])) {
 				// Se o sinal mudou, volta ao que estava antes
