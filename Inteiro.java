@@ -1,7 +1,12 @@
-class Inteiro{
+import java.util.ArrayList;
+
+class Inteiro implements Cloneable{
 	
-	// a posiÃ§Ã£o 0 corresponde ao digito mais a direita de um numero
-	protected int[] bits;
+	public static final Inteiro ZERO = new Inteiro(0);
+	
+	// a posição 0 corresponde ao digito mais a direita de um numero
+	private int[] bits;
+
 	// true para numero negativo, false para numero positivo
 	private boolean negativo;
 	
@@ -14,8 +19,16 @@ class Inteiro{
 	}
 	
 	public Inteiro(int numero) {
-		this.bits = this.toBinario((numero+"").length(), numero);
+		this.bits = this.toBinario(numero);
 	}
+
+	private Inteiro() {}
+//
+//	private Inteiro (int tamanho){
+//		//aqui eu me aproveito do fato do java inicializar tudo com 0
+//		this.bits = new int[tamanho];
+//	}
+
 
 	private Inteiro(int tamanho, int[] numero){
 		this.bits = new int[tamanho];
@@ -55,6 +68,14 @@ class Inteiro{
 	public static int[] subtrai(int tamanho, int[] int1, int[] int2){
 		return soma(tamanho, int1, new Inteiro(int2.length, int2).complementoDe2().bits);
 	}
+	
+	public void soma(Inteiro i) {
+		this.bits = soma(this.bits.length, this.bits, i.bits);
+	}
+	
+	public void subtrai(Inteiro i) {
+		this.bits = subtrai(this.bits.length, this.bits, i.bits);
+	}
 
 	public static Inteiro soma(int tamanho,Inteiro int1, Inteiro int2){
 		return new Inteiro(tamanho,soma(tamanho, int1.bits, int2.bits));
@@ -78,12 +99,23 @@ class Inteiro{
 	public void Rshift(){
 		this.bits = rightShift(this.bits);
 	}
+	
+	public void RshiftSimples(){
+		this.bits = rightShiftSimples(this.bits);
+	}
 
 	public void Lshift(){
 		this.bits = leftShift(this.bits);
 	}
 	
 	public static int[] rightShift(int[] bits) {
+		for(int i = 0; i < (bits.length - 1); i++)
+			bits[i] = bits[i+1];
+		bits[bits.length - 1] = 0;
+		return bits;
+	}
+	
+	public static int[] rightShiftSimples(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
 		bits[bits.length - 1] = 0;
@@ -122,6 +154,7 @@ class Inteiro{
 		return new Inteiro(tamanhoProduto, produto);
 	}
 	
+
 	public static Inteiro[] divide(Inteiro dividendo, Inteiro divisor) {
 		int tamanhoAux = dividendo.getLenghofBits()*2;
 		int[] dividendoAux = new int[tamanhoAux];
@@ -142,6 +175,7 @@ class Inteiro{
 		return new Inteiro[] { new Inteiro(tamanhoAux/2, getMetadeEsq(dividendoAux)),
 			new Inteiro(tamanhoAux/2, getMetadeDir(dividendoAux)) };
 	}
+
 	
 	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
 		if (produto.length  % 2 == 0) {
@@ -241,6 +275,67 @@ class Inteiro{
 			return complementoDe2(binario);
 		return binario;
 	}
+	
+	private int[] toBinario(int numero){
+		ArrayList<Integer> binario = new ArrayList<Integer>();
+		this.negativo = false;
+		if (numero<0) {
+			negativo = true;
+			numero *= -1;
+		}
+		int aux = numero;
+		while(aux >= 2){
+			binario.add(aux%2);
+			aux = aux/2;
+		}
+		binario.add(aux);
+		if (negativo)
+			return complementoDe2(getIntArray(binario));
+		return getIntArray(binario);
+	}
+	
+	private static int[] getIntArray(ArrayList<Integer> arrayList) {
+		int[] binario = new int[arrayList.size()];
+		for (int i=0; i < arrayList.size(); i++) {
+			binario[i] = arrayList.get(i);
+		}
+		return binario;
+	}
+	
+	/**
+	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto
+	 * @param bits
+	 */
+	public void setNewBits(int[] bits) {
+		// zera bits antigos
+		this.bits = new int[this.bits.length];
+		for(int i = 0; i < this.bits.length && i < bits.length; i++) {
+			// atribui bits novos
+			this.bits[i] = bits[i];
+		}
+	}
+	/**
+	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto a partir dos bits mais a esquerda
+	 * @param bits
+	 */
+	public void setNewBitsPelaEsq(int[] bits) {
+		// zera bits antigos
+		this.bits = new int[this.bits.length];
+		for(int i = this.bits.length-1; i >= 0 && (bits.length-(this.bits.length - i)-1) >= 0; i--) {
+			// atribui bits novos
+			this.bits[i] = bits[bits.length-(this.bits.length - (i + 1)) - 1];
+		}
+	}
+	
+	/**
+	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto e joga todos os bits para a esquerda
+	 * @param bits
+	 */
+	public void setNewBitsEsq(int[] bits) {
+		setNewBits(bits);
+		while (this.bits[this.bits.length-1] == 0)
+			this.Lshift();
+	}
 
 	public String toString(){
 		String result = "";
@@ -262,11 +357,62 @@ class Inteiro{
 		if(negativo) result = result * -1;
 		return result;
 	}
+//	
+//	public int toIntBinario(){
+//		int result = 0;
+//		int multiplicador = 1;
+//		for (int i=0; i<bits.length; i++) {
+//			result = this.bits[i] * multiplicador;
+//			multiplicador *= 10;
+//		}
+//		if (negativo)
+//			result *= -1;
+//		return result;
+//	}
+	
+	/**
+	 * Retorna a quantidade de digitos utilizadas para representar o número
+	 * @return quantidade de digitos utilizadas para representar o número
+	 */
+	public int getNumberLength() {
+		int ultimoUm =0;
+		for (int i=0; i < this.bits.length; i++) {
+			if (this.bits[i] == 1) {
+				ultimoUm = i;
+			}
+		}
+		return ultimoUm+1;
+	}
+	
+	/**
+	 * Retorna os bits necessarios para representacao do numero, o que pode ser maior que o tamanho definido para o objeto
+	 * @return bits necessarios para representacao do numero, o que pode ser maior que o tamanho definido para o objeto
+	 */
+	public int[] getShortenedBits() {
+		int tamanhoReal = this.getNumberLength();
+		int[] shortenedBits = new int[tamanhoReal];
+		for (int i=0; i < tamanhoReal; i++) {
+			shortenedBits[i] = this.bits[i];
+		}
+		return shortenedBits;
+	}
+	
+	public boolean isNegativo() {
+		return negativo;
+	}
+	
+	@Override
+	protected Inteiro clone() {
+		Inteiro i = new Inteiro();
+		i.bits = this.getBits();
+		i.negativo = this.negativo;
+		return i;
+	}
 
 	public static void main(String[] args){
 		int tamanho = 32;
-		Inteiro i = new Inteiro(tamanho, 17);
-		Inteiro a = new Inteiro(tamanho, -2);
+		Inteiro i = new Inteiro(tamanho, 14);
+		Inteiro a = new Inteiro(tamanho, 3);
 		Inteiro soma = Inteiro.soma(tamanho, i, a);
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
