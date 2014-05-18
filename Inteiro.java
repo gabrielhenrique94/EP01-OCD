@@ -2,8 +2,6 @@ class Inteiro{
 	
 	// a posição 0 corresponde ao digito mais a direita de um numero
 	protected int[] bits;
-	// true para numero negativo, false para numero positivo
-	private boolean negativo;
 	
 	/**
 	* construtor que incializa o interio com um valor pre-definido
@@ -14,24 +12,33 @@ class Inteiro{
 	}
 	
 	public Inteiro(int numero) {
-		this.bits = this.toBinario((numero+"").length(), numero);
+		int size = 0;
+		for (int n = numero; n != 0 ; n = n/2) size++;
+		this.bits = this.toBinario((size + 1), numero);
 	}
 
 	private Inteiro(int tamanho, int[] numero){
-		this.bits = new int[tamanho];
+		this.bits = copiaBinario(tamanho,numero);
+	}
+
+	private static int[] copiaBinario(int tamanho, int[] numero){
+		boolean negativo = numero[numero.length - 1] == 1;
+		if(negativo) numero = complementoDe2(numero);
+		int[] result = new int[tamanho];
 		for(int i = 0 ; i < tamanho; i++){
 			if(i >= numero.length)
-				this.bits[i] = 0;
+				result[i] = 0;
 			else if(numero[i] == 0 || numero[i] == 1)
-				this.bits[i] = numero[i];
+				result[i] = numero[i];
 			else{
 				System.err.println("Inteiro.contrutor: vetor contem numeros que nao sao 0 ou 1");
 				break;
 			}
 		}
+		if(negativo) result = complementoDe2(result);
+		return result;
 	}
-
-	public int max(int a, int b){
+	public static int max(int a, int b){
 		return (a > b )? a : b;
 	}
 
@@ -43,11 +50,11 @@ class Inteiro{
 		int[] otherBits = new int[bits.length];
 		for(int a = 0; a < bits.length; a++)
 			otherBits[a] = (bits[a] == 0)? 1 : 0;
-		int[] soma1 = {1};
-		return soma(otherBits.length,otherBits, soma1);
+		return soma1(otherBits);//soma 1 a otherBits
 	}
 
 
+	
 	public static Inteiro subtrai(int tamanho, Inteiro int1, Inteiro int2){
 		return soma(tamanho, int1, int2.complementoDe2());
 	}
@@ -62,14 +69,17 @@ class Inteiro{
 	
 	public static int[] soma(int tamanho,int[] int1, int[] int2){
 		int[] soma = new int[tamanho];
+		//essas duas linhas normalizam os tamanhos dos numeros;
+		int[] n1 = copiaBinario(tamanho, int1);
+		int[] n2 = copiaBinario(tamanho, int2);
 		boolean vem = false;//0
 		boolean sum ;
 		for(int i = 0 ; i < tamanho; i++){
-			boolean B1 = (i < int1.length) ? (int1[i] == 1) : false;
-			boolean B2 = (i < int2.length) ? int2[i] == 1 : false;
+			boolean B1 = n1[i] == 1;
+			boolean B2 = n2[i] == 1;
 			sum = (B2 ^ B1 ^ vem) || (B1&&B2&&vem);
 			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
-			soma[i] = (sum)?1:0;
+			soma[i] = (sum) ? 1 : 0;
 		}
 		return soma;
 	}
@@ -86,7 +96,7 @@ class Inteiro{
 	public static int[] rightShift(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
-		bits[bits.length - 1] = 0;
+		//bits[bits.length - 1] = bits[bits.length - 2];
 		return bits;
 	}
 	
@@ -96,7 +106,7 @@ class Inteiro{
 		bits[0] = 0;
 		return bits;
 	}
-	
+
 	/**
 	 * Realiza a multiplicação de dois números binários através do algoritmo de Booth
 	 * @param multiplicando
@@ -105,12 +115,22 @@ class Inteiro{
 	 */
 	public static Inteiro multiplica(Inteiro multiplicando, Inteiro multiplicador) {
 		int anterior = 0;
-		int[] multiplicadorBits = multiplicador.getBits();
-		int multiplicadorLenghBits = multiplicador.getLenghofBits();
-		int tamanhoProduto = multiplicadorLenghBits*2;
-		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], multiplicadorBits);
-		for (int x=0; x < multiplicadorLenghBits; x++) {
-			int atual = multiplicadorBits[x];
+		//checa se os numeros são negativos
+		boolean isMultiplicadorNegativo = multiplicador.bits[multiplicador.bits.length - 1] == 1;
+		boolean isMultiplicandoNegativo = multiplicando.bits[multiplicando.bits.length - 1] == 1;
+		//caso positivo, tira os numeros de complemento de dois
+		int[] bitsMultiplicador = (isMultiplicadorNegativo) ? complementoDe2(multiplicador.bits) : multiplicador.bits;
+		int[] bitsMultiplicando = (isMultiplicandoNegativo) ? complementoDe2(multiplicando.bits) : multiplicando.bits;
+		// normaliza os tamanhos
+		int tamanho = max(bitsMultiplicando.length, bitsMultiplicador.length);
+		bitsMultiplicador = copiaBinario(tamanho,bitsMultiplicador);
+		bitsMultiplicando = copiaBinario(tamanho,bitsMultiplicando);
+
+		int tamanhoProduto = multiplicador.bits.length*2;
+		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], bitsMultiplicador);
+		
+		for (int x = 0; x < bitsMultiplicador.length; x++) {
+			int atual = bitsMultiplicador[x];
 			if (atual == 1 && anterior == 0) {
 				produto = subtraiMetadeEsq(multiplicando.getBits(), produto);
 			} else if (atual == 0 && anterior == 1){
@@ -119,20 +139,25 @@ class Inteiro{
 			produto = rightShift(produto);
 			anterior = atual;
 		}
-		return new Inteiro(tamanhoProduto, produto);
+
+		if(isMultiplicandoNegativo ^ isMultiplicadorNegativo){//caso apenas um deles for negativo , é preciso voltar a notação para complemento de 2
+			produto = complementoDe2(produto);
+		}
+
+		return new Inteiro(tamanhoProduto/2, produto);
 	}
 	
 	public static Inteiro[] divide(Inteiro dividendo, Inteiro divisor) {
-		int tamanhoAux = dividendo.getLenghofBits()*2;
+		int tamanhoAux = dividendo.getLengthOfBits()*2;
 		int[] dividendoAux = new int[tamanhoAux];
 		int[] divisorAux = novaMetadeEsq(new int[tamanhoAux], divisor.getBits());
 		dividendoAux = soma(tamanhoAux, dividendoAux, dividendo.getBits());
-		for(int i=0; i<dividendo.getLenghofBits(); i++) {
+		for(int i=0; i<dividendo.getLengthOfBits(); i++) {
 			dividendoAux = leftShift(dividendoAux);
 			dividendoAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
 	
 			// Verifica se o resultado da subtracao mudou o sinal do dividendo
-			if(dividendoAux[tamanhoAux-1] != (dividendo.negativo?1:0)) {
+			if(dividendoAux[tamanhoAux-1] != (dividendo.bits[dividendo.bits.length - 1])) {
 				// Se o sinal mudou, volta ao que estava antes
 				dividendoAux = soma(tamanhoAux, dividendoAux, divisorAux);
 				dividendoAux[0] = 0;
@@ -150,6 +175,27 @@ class Inteiro{
 			produto = novaMetadeEsq(produto, metadeEsqSomada);
 		}
 		return produto;
+	}
+
+	/**
+	* Adiciona 1 ao binario passado como parametro
+	*/
+	private static int[] soma1(int[] v){
+		int[] soma = new int[v.length];
+		boolean vem = false;//inicialização inutil;
+		boolean sum ;
+		boolean B1 = (v[0] == 1);
+		sum = !B1; //com vem = 0 , e o primeiro bit = 1, o resultado só fica com 1 na primeira casa caso o numero ao qual eu quero adicionar 1 tenha a primeira casa = 0;
+		vem = B1; //com vem = 0 , e o primeiro bit = 1, só "vai" 1 caso o numero ao qual eu quero adicionar 1 tenha o primeiro bit = 1
+		soma[0] = (sum) ? 1 : 0;
+		for(int i = 1; i < v.length; i++){
+			//aqui eu posso assumir que o segundo numero que eu estou adicionando é zero, ou seja, estou na verdade fazendo B1 + vem
+			B1 = (v[i] == 1);
+			sum = (B1 ^ vem);
+			vem = (B1 && vem);
+			soma[i] = (sum) ? 1 : 0;
+		}
+		return soma;
 	}
 	
 	private static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
@@ -215,21 +261,21 @@ class Inteiro{
 		return bits.clone();
 	}
 	
-	private int getLenghofBits() {
+	private int getLengthOfBits() {
 		return bits.length;
 	}
 
 	private int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
-		this.negativo = false;
-		if (numero<0) {
-			negativo = true;
-			numero *= -1;
-		}
+		boolean negativo = (numero < 0);
+		if(negativo) numero = numero * -1;
 		int aux = numero;
 		int pBinario = 0;
 		while(aux >= 2){
-			if(pBinario == tamanho) break;
+			if(pBinario == tamanho) {
+				System.err.printf("Esse número não cabe em %d bits", tamanho);
+				System.exit(0);
+			}
 			binario[pBinario] = aux%2;
 			pBinario++;
 			aux = aux/2;
@@ -253,6 +299,7 @@ class Inteiro{
 		int p2 = 1;
 		int result = 0;
 		int[] bitsPraInt = this.bits;
+		boolean negativo = bitsPraInt[bitsPraInt.length - 1] == 1;
 		if (negativo)
 			bitsPraInt = complementoDe2(bitsPraInt);
 		for(int i = 0 ; i < this.bits.length; i++){
@@ -265,8 +312,8 @@ class Inteiro{
 
 	public static void main(String[] args){
 		int tamanho = 32;
-		Inteiro i = new Inteiro(tamanho, 17);
-		Inteiro a = new Inteiro(tamanho, -2);
+		Inteiro i = new Inteiro(tamanho,7);
+		Inteiro a = new Inteiro(tamanho,-2);
 		Inteiro soma = Inteiro.soma(tamanho, i, a);
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
