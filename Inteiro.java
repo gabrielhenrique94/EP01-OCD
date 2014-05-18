@@ -93,7 +93,7 @@ class Inteiro{
 	public static int[] rightShift(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
-		//bits[bits.length - 1] = bits[bits.length - 2];
+		bits[bits.length - 1] = 0;
 		return bits;
 	}
 	
@@ -180,7 +180,7 @@ class Inteiro{
 			quociente = getMetadeDir(dividendoAux);
 		}
 		return new Inteiro[] { new Inteiro(tamanhoAux/2, getMetadeEsq(dividendoAux)),
-			new Inteiro(tamanhoAux/2, quociente )};
+			new Inteiro(tamanhoAux/2, quociente)};
 	}
 	
 	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
