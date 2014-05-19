@@ -58,9 +58,10 @@ class Inteiro implements Cloneable{
 		return new Inteiro(this.bits.length, complementoDe2(this.bits));
 	}
 	
+	
 	private static int[] complementoDe2(int[] bits) {
 		int[] otherBits = new int[bits.length];
-		for(int a = 0; a < bits.length; a++)
+		for(int a = 0; a < bits.length-1; a++)
 			otherBits[a] = (bits[a] == 0)? 1 : 0;
 		return soma1(otherBits);//soma 1 a otherBits
 	}
@@ -86,20 +87,45 @@ class Inteiro implements Cloneable{
 	}
 	
 	public static int[] soma(int tamanho,int[] int1, int[] int2){
-		int[] soma = new int[tamanho];
 		//essas duas linhas normalizam os tamanhos dos numeros;
 		int[] n1 = copiaBinario(tamanho, int1);
 		int[] n2 = copiaBinario(tamanho, int2);
+		return somaSimples(tamanho, n1, n2);
+	}
+
+	public static int[] somaSimples(int tamanho, int[] n1, int[] n2) {
+		int[] soma = new int[tamanho];
 		boolean vem = false;//0
 		boolean sum ;
 		for(int i = 0 ; i < tamanho; i++){
-			boolean B1 = n1[i] == 1;
-			boolean B2 = n2[i] == 1;
+			boolean B1 = i<n1.length && n1[i] == 1;
+			boolean B2 = i<n2.length && n2[i] == 1;
 			sum = (B2 ^ B1 ^ vem) || (B1&&B2&&vem);
 			vem = (B2 && B1) || (B2&&vem) || (B1&&vem);
 			soma[i] = (sum) ? 1 : 0;
 		}
 		return soma;
+	}
+	
+	/**
+	 * Soma um binario com um numero decimal e retorna o resultado em um vetor de bits binarios
+	 * @param n1 vetor de bits de numero binario
+	 * @param n2 numero decimal a ser somado
+	 * @return resultado em um vetor de bits binarios
+	 */
+	public static int[] somaSimples(int[] n1, int n2) {
+		return somaSimples(n1.length, n1, new Inteiro(n2).getNumberBits());
+	}
+	
+	/**
+	 * Soma um binario com um numero decimal e retorna o resultado em um numero decimal
+	 * @param n1 vetor de bits de numero binario
+	 * @param n2 numero decimal a ser somado
+	 * @return resultado em decimal
+	 */
+	public static int somaSimplesDecimal(int[] n1, int n2) {
+		int[] soma = somaSimples(n1.length, n1, new Inteiro(n2).getBits());
+		return new Inteiro(soma.length, soma).toInteger();
 	}
 
 	public void Rshift(){
@@ -308,8 +334,16 @@ class Inteiro implements Cloneable{
 		return bits;
 	}
 	
-	public int[] getBits() {
+	private int[] getBits() {
 		return bits.clone();
+	}
+	
+	public int[] getNumberBits() {
+		int[] numberBits = new int[bits.length-1];
+		for (int i=0; i<numberBits.length; i++) {
+			numberBits[i] = bits[i];
+		}
+		return numberBits;
 	}
 	
 	private int getLengthOfBits() {
@@ -334,8 +368,11 @@ class Inteiro implements Cloneable{
 		if(aux == 1)
 			if(pBinario < tamanho)
 				binario[pBinario]  = 1;
-		if (negativo)
-			return complementoDe2(binario);
+		if (negativo) {
+			int[] complementoDe2 = complementoDe2(binario);
+			complementoDe2[binario.length - 1] = 1;
+			return complementoDe2;
+		}
 		return binario;
 	}
 	
@@ -364,28 +401,8 @@ class Inteiro implements Cloneable{
 			this.bits[i] = bits[i];
 		}
 	}
-	/**
-	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto a partir dos bits mais a esquerda
-	 * @param bits
-	 */
-	public void setNewBitsPelaEsq(int[] bits) {
-		// zera bits antigos
-		this.bits = new int[this.bits.length];
-		for(int i = this.bits.length-1; i >= 0 && (bits.length-(this.bits.length - i)-1) >= 0; i--) {
-			// atribui bits novos
-			this.bits[i] = bits[bits.length-(this.bits.length - (i + 1)) - 1];
-		}
-	}
+
 	
-	/**
-	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto e joga todos os bits para a esquerda
-	 * @param bits
-	 */
-	public void setNewBitsEsq(int[] bits) {
-		setNewBits(bits);
-		while (this.bits[this.bits.length-1] == 0)
-			this.Lshift();
-	}
 
 	public String toString(){
 		String result = "";
@@ -408,11 +425,22 @@ class Inteiro implements Cloneable{
 		if(negativo) result = result * -1;
 		return result;
 	}
+	
+	public static int toSimpleInteger(int[] bits){
+		int p2 = 1;
+		int result = 0;
+		int[] bitsPraInt = bits;
+		for(int i = 0 ; i < bits.length; i++){
+			result += bitsPraInt[i] * p2;
+			p2 *= 2;
+		}
+		return result;
+	}
 
 	
 	/**
-	 * Retorna a quantidade de digitos utilizadas para representar o n�mero
-	 * @return quantidade de digitos utilizadas para representar o n�mero
+	 * Retorna a quantidade de digitos utilizadas para representar o numero
+	 * @return quantidade de digitos utilizadas para representar o numero
 	 */
 	public int getNumberLength() {
 		int ultimoUm =0;

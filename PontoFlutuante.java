@@ -6,36 +6,67 @@ public class PontoFlutuante {
 	private static final int TAMANHO_EXPOENTE = 8;
 	
 	// true para positivo e false para negativo
-	private boolean sinal;
-	private Inteiro expoente = new Inteiro(TAMANHO_EXPOENTE, 127);
-	private Inteiro mantissa = new Inteiro(TAMANHO_MANTISSA, 0);
+	private int sinal;
+	// é utilizado o TAMANHO_EXPOENTE+1 pois o inteiro utiliza um bit para sinal que é utilizado nesse ponto.
+	private int[] expoente = new Inteiro(TAMANHO_EXPOENTE+1, 127).getNumberBits();
+	private int[] mantissa = new int[TAMANHO_MANTISSA];
 
 	
 	public PontoFlutuante(int numero) {
-		inicializaPontoFlutuante(new Inteiro(numero), Inteiro.ZERO, numero>= 0);
+		inicializaPontoFlutuante(new Inteiro(numero), Inteiro.ZERO);
 	}
 	
 	public PontoFlutuante(Inteiro i) {
-		inicializaPontoFlutuante(i, Inteiro.ZERO, !i.isNegativo());
+		inicializaPontoFlutuante(i, Inteiro.ZERO);
 	}
 	
 	public PontoFlutuante(Inteiro i, Inteiro resto) {
-		inicializaPontoFlutuante(i, resto, !i.isNegativo());
+		inicializaPontoFlutuante(i, resto);
 	}
 
-	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto, boolean sinal) {
-		Inteiro mantissaAux = new Inteiro(TAMANHO_MANTISSA*2, 0);
-		mantissaAux.setNewBits(somaBits(i.getBits(), resto.getBits()));
-		if (i.isNegativo())
-			sinal = false;
-		expoente.soma(new Inteiro(i.getNumberLength()-1));
-		mantissaAux.setNewBitsEsq(mantissaAux.getBits());
-		removePrimeiroUmEsq(mantissaAux);
-		mantissa.setNewBitsPelaEsq(mantissaAux.getBits());
+	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto) {
+		this.sinal = i.isNegativo() ? 0 : 1;
+		int[] mantissaAux = setBitsInArray(somaBits(i.getNumberBits(), resto.getNumberBits()), TAMANHO_MANTISSA*2);
+		expoente = Inteiro.somaSimples(expoente, i.getNumberLength());
+		while (mantissaAux[mantissaAux.length-1] == 0)
+			mantissaAux = Inteiro.leftShift(mantissaAux);
+		mantissaAux = removePrimeiroUmEsq(mantissaAux);
+		mantissa = setNewBitsPelaEsq(mantissaAux, TAMANHO_MANTISSA);
 	}
 	
-	private static void removePrimeiroUmEsq(Inteiro i) {
-		i.Lshift();
+	/**
+	 * Copia um vetor de bits para outro de tamanho diferente
+	 * @param array vetor de bits a ser transposto.
+	 * @param tamanho tamanho do novo vetor de bits
+	 * @return novo vetor de bits com tamanho passado por parâmetro
+	 */
+	private static int[] setBitsInArray(int[] array, int tamanho) {
+		int[] dest = new int[tamanho];
+		for(int i = 0; i < dest.length && i < array.length; i++) {
+			// atribui bits novos
+			dest[i] = array[i];
+		}
+		return dest;
+	}
+	
+	/**
+	 * Substitui o numero binario antigo por um novo conservando de forma que o bit mais a direita também fique a direita nesse vetor de bits
+	 * @param bits bits antigos
+	 * @param tamanho tamanho do novo vetor
+	 * @return novo vetor com bits a esquerda para mantissa
+	 */
+	public int[] setNewBitsPelaEsq(int[] bits, int tamanho) {
+		// zera bits antigos
+		int[] novosBits = new int[tamanho];
+		for(int i = novosBits.length-1; i >= 0 && (bits.length-(novosBits.length - i)-1) >= 0; i--) {
+			// atribui bits novos
+			novosBits[i] = bits[bits.length-(novosBits.length - (i + 1)) - 1];
+		}
+		return novosBits;
+	}
+	
+	private static int[] removePrimeiroUmEsq(int[] i) {
+		return Inteiro.leftShift(i);
 	}
 	
 	private static int[] somaBits(int[] b1, int[] b2) {
@@ -63,26 +94,25 @@ public class PontoFlutuante {
 	}
 	
 	public int getNumeroDecimal() {
-		Inteiro mantissaAux = new Inteiro(TAMANHO_MANTISSA+1, 0);
-		int[] bitsMantissa = mantissa.getBits();
+		int[] mantissaAux = new int[TAMANHO_MANTISSA+1];
+		int[] bitsMantissa = mantissa;
 		int[] mantissaReal = new int[TAMANHO_MANTISSA+1];
 		for (int i=0; i<bitsMantissa.length; i++) {
 			mantissaReal[i] = bitsMantissa[i];
 		}
 		mantissaReal[mantissaReal.length-1] = 1;
-		mantissaAux.setNewBits(mantissaReal);
-		double numeroFloat = mantissaAux.toInteger() * Math.pow(2, getExpoente().toInteger()-TAMANHO_MANTISSA);
-		return (int) (sinal ? -numeroFloat : numeroFloat);
+		mantissaAux = setBitsInArray(mantissaReal, TAMANHO_MANTISSA+1);
+		double numeroFloat = Inteiro.toSimpleInteger(mantissaAux) * Math.pow(2, getExpoente()-TAMANHO_MANTISSA-1);
+		return (int) (sinal==1 ? numeroFloat : -numeroFloat);
 	}
 	
 	/**
 	 * Retorna o expoente do float com 127 já somado.
 	 * @return Expoente do float com 127 já somado.
 	 */
-	public Inteiro getExpoente() {
-		Inteiro clone = expoente.clone();
-		clone.soma(new Inteiro(clone.getNumberLength(), -127));
-		return clone;
+	public int getExpoente() {
+		int[] clone = expoente.clone();
+		return Inteiro.somaSimplesDecimal(clone, -127);
 	}
 	
 	
