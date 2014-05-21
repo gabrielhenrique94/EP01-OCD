@@ -5,9 +5,11 @@ public class PontoFlutuante {
 	private static final int TAMANHO_MANTISSA = 23;
 	private static final int TAMANHO_EXPOENTE = 8;
 	
-	// true para positivo e false para negativo
+	private static final int POSITIVO=0;
+	private static final int NEGATIVO=1;
+	// 1 para negativo e 0 para positivo
 	private int sinal;
-	// é utilizado o TAMANHO_EXPOENTE+1 pois o inteiro utiliza um bit para sinal que é utilizado nesse ponto.
+	// ï¿½ utilizado o TAMANHO_EXPOENTE+1 pois o inteiro utiliza um bit para sinal que ï¿½ utilizado nesse ponto.
 	private int[] expoente = new Inteiro(TAMANHO_EXPOENTE+1, 127).getNumberBits();
 	private int[] mantissa = new int[TAMANHO_MANTISSA];
 
@@ -25,7 +27,7 @@ public class PontoFlutuante {
 	}
 
 	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto) {
-		this.sinal = i.isNegativo() ? 0 : 1;
+		this.sinal = i.isNegativo() ? NEGATIVO : POSITIVO;
 		int[] mantissaAux = setBitsInArray(somaBits(i.getNumberBits(), resto.getNumberBits()), TAMANHO_MANTISSA*2);
 		expoente = Inteiro.somaSimples(expoente, i.getNumberLength());
 		while (mantissaAux[mantissaAux.length-1] == 0)
@@ -38,7 +40,7 @@ public class PontoFlutuante {
 	 * Copia um vetor de bits para outro de tamanho diferente
 	 * @param array vetor de bits a ser transposto.
 	 * @param tamanho tamanho do novo vetor de bits
-	 * @return novo vetor de bits com tamanho passado por parâmetro
+	 * @return novo vetor de bits com tamanho passado por parï¿½metro
 	 */
 	private static int[] setBitsInArray(int[] array, int tamanho) {
 		int[] dest = new int[tamanho];
@@ -50,7 +52,7 @@ public class PontoFlutuante {
 	}
 	
 	/**
-	 * Substitui o numero binario antigo por um novo conservando de forma que o bit mais a direita também fique a direita nesse vetor de bits
+	 * Substitui o numero binario antigo por um novo conservando de forma que o bit mais a direita tambï¿½m fique a direita nesse vetor de bits
 	 * @param bits bits antigos
 	 * @param tamanho tamanho do novo vetor
 	 * @return novo vetor com bits a esquerda para mantissa
@@ -81,7 +83,7 @@ public class PontoFlutuante {
 	}
 
 //	/**
-//	 * Realiza a normalização da entrada junto a devidas correcoes decorrentes no expoente
+//	 * Realiza a normalizaï¿½ï¿½o da entrada junto a devidas correcoes decorrentes no expoente
 //	 */
 //	private static void normalizaEntrada(Inteiro mantissa, Inteiro expoente) {
 //		
@@ -103,12 +105,12 @@ public class PontoFlutuante {
 		mantissaReal[mantissaReal.length-1] = 1;
 		mantissaAux = setBitsInArray(mantissaReal, TAMANHO_MANTISSA+1);
 		double numeroFloat = Inteiro.toSimpleInteger(mantissaAux) * Math.pow(2, getExpoente()-TAMANHO_MANTISSA-1);
-		return (int) (sinal==1 ? numeroFloat : -numeroFloat);
+		return (int) (sinal==POSITIVO ? numeroFloat : -numeroFloat);
 	}
 	
 	/**
-	 * Retorna o expoente do float com 127 já somado.
-	 * @return Expoente do float com 127 já somado.
+	 * Retorna o expoente do float com 127 jï¿½ somado.
+	 * @return Expoente do float com 127 jï¿½ somado.
 	 */
 	public int getExpoente() {
 		int[] clone = expoente.clone();
