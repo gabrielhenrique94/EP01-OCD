@@ -10,7 +10,7 @@ public class PontoFlutuante {
 	// 1 para negativo e 0 para positivo
 	private int sinal;
 	// � utilizado o TAMANHO_EXPOENTE+1 pois o inteiro utiliza um bit para sinal que � utilizado nesse ponto.
-	private int[] expoente = new Inteiro(TAMANHO_EXPOENTE+1, 127).getNumberBits();
+	private int[] expoente = new Inteiro(TAMANHO_EXPOENTE+1, 128).getNumberBits();
 	private int[] mantissa = new int[TAMANHO_MANTISSA];
 
 	
@@ -109,12 +109,12 @@ public class PontoFlutuante {
 	}
 	
 	/**
-	 * Retorna o expoente do float com 127 j� somado.
-	 * @return Expoente do float com 127 j� somado.
+	 * Retorna o expoente do float com 128 já subtraido.
+	 * @return Expoente do float com 128 já subtraido.
 	 */
 	public int getExpoente() {
 		int[] clone = expoente.clone();
-		return Inteiro.somaSimplesDecimal(clone, -127);
+		return Inteiro.somaSimplesDecimal(clone, -128);
 	}
 	
 	
