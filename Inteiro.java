@@ -67,7 +67,7 @@ class Inteiro implements Cloneable{
 
 	private static int[] complementoDe2(int[] bits) {
 		int[] otherBits = new int[bits.length];
-		for(int a = 0; a < bits.length-1; a++)
+		for(int a = 0; a < bits.length; a++)
 			otherBits[a] = (bits[a] == 0)? 1 : 0;
 		return soma1(otherBits);//soma 1 a otherBits
 	}
