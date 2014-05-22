@@ -23,8 +23,8 @@ public class EP1OCD {
 		
 		PontoFlutuante multFlut = PontoFlutuante.multiplicaFlutuante(flut1, flut2);
 		PontoFlutuante divFlut = PontoFlutuante.divideFlutuante(flut1, flut2);
-		System.out.println("i % a = " + multFlut + " = " + multFlut.getNumeroDecimal()); // i * a
-		System.out.println("i % a = " + divFlut + " = " + divFlut.getNumeroDecimal()); // i / a
+		System.out.println("i * a = " + multFlut + " = " + multFlut.getNumeroDecimal()); // i * a
+		System.out.println("i / a = " + divFlut + " = " + divFlut.getNumeroDecimal()); // i / a
 	}
 
 }
