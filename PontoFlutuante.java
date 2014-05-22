@@ -410,9 +410,14 @@ public class PontoFlutuante {
 		int cont = 0;
 
 		if (MULTIPLICACAO) { // é multiplicação?
-			expoenteAux = Inteiro.soma(expoenteAux.length, flut1.expoente,
-					flut2.expoente);
-			for (int i = expoenteAux.length - 1; i >= 0; i++) {
+			int[] novoExp1 = flut1.getExpoenteBinario();
+			int[] novoExp2 = flut2.getExpoenteBinario();
+			//expoenteAux = Inteiro.soma(expoenteAux.length, flut1.expoente,
+			//		flut2.expoente);
+			
+			expoenteAux = Inteiro.soma(expoenteAux.length, novoExp1,
+					novoExp2);
+			for (int i = expoenteAux.length - 1; i >= 0; i--) {
 				if (expoenteAux[i] == 1) {
 					cont = i;
 					break;
