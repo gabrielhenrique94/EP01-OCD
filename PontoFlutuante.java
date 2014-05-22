@@ -132,16 +132,12 @@ public class PontoFlutuante {
 
 		// Ajusta sinal do ponto flutuante
 		resultado.sinal = (flut1.sinal == flut2.sinal) ? POSITIVO : NEGATIVO;
-
-		System.out.println("passou1");
 		
 		int[] mantissaAjustada1 = new int[TAMANHO_MANTISSA + 1];
 		int[] mantissaAjustada2 = new int[TAMANHO_MANTISSA + 1];
 		mantissaAjustada1 = addBitEsqMantissa(flut1.mantissa);
 		mantissaAjustada2 = addBitEsqMantissa(flut2.mantissa);
 
-		System.out.println("passou2");
-		
 		// Se um dos pontos flutuantes for 1 o resultado será o outro ponto flutuante
 		if (flutIsUm(flut1, mantissaAjustada1)) {
 			resultado.expoente = flut2.expoente;
@@ -153,22 +149,17 @@ public class PontoFlutuante {
 			resultado.mantissa = flut1.mantissa;
 			return resultado;
 		}
-
-		System.out.println("passou3");
 		
 		// Confere Underflow, Overflow, soma expoentes e subtrai excesso
 		resultado.expoente = conferirSomar(flut1, flut2, MULTIPLICACAO);
 		
 		boolean estaDesnormalizado = true;
-
-		System.out.println("passou4");
 		
 		while (estaDesnormalizado) {
 			// Multiplica
 			int[] mantissaTemp = multiplicaMantissa(mantissaAjustada1,
 					mantissaAjustada2);
 
-			System.out.println("passou5");
 			// Normalizando o produto
 			int localInicio = mantissaTemp.length - 1;
 			for (int i = mantissaTemp.length - 1; i >= 0; i--) {
@@ -178,7 +169,6 @@ public class PontoFlutuante {
 				}
 			}
 			
-			System.out.println("passou6");
 			// Estado normalizado
 			if (localInicio <= mantissaTemp.length / 2) {
 				for (int i = 0; i < localInicio; i++) {
@@ -186,7 +176,7 @@ public class PontoFlutuante {
 				}
 				estaDesnormalizado = false;
 			}
-			System.out.println("passou7");
+			
 			// Produto é maior, precisa dividir mantissa e somar expoente
 			if (localInicio > mantissaTemp.length / 2) {
 				int[] divisor = Inteiro.Inteiro(2);
@@ -196,7 +186,6 @@ public class PontoFlutuante {
 			}
 		}
 
-		System.out.println("saiu");
 		return resultado;
 	}
 
