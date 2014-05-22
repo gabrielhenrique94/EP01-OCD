@@ -194,9 +194,9 @@ class Inteiro implements Cloneable{
 		for (int x = 0; x < bitsMultiplicador.length; x++) {
 			int atual = bitsMultiplicador[x];
 			if (atual == 1 && anterior == 0) {
-				produto = subtraiMetadeEsq(multiplicando.getBits(), produto);
+				produto = subtraiMetadeEsq(bitsMultiplicando, produto);
 			} else if (atual == 0 && anterior == 1){
-				produto = somaMetadeEsq(multiplicando.getBits(), produto);
+				produto = somaMetadeEsq(bitsMultiplicando, produto);
 			}
 			produto = rightShift(produto);
 			anterior = atual;
@@ -222,20 +222,19 @@ class Inteiro implements Cloneable{
 
 
 		int[] dividendoAux = copiaBinario(tamanhoAux, bitsDividendo);
-		int[] divisorAux = novaMetadeEsq(new int[tamanhoAux], bitsDivisor);
+		int[] divisorAux = copiaBinario(tamanhoAux, bitsDivisor);
 
+		int[] quociente = new int[tamanhoAux];
+		
 		for(int i=0; i<dividendo.getLengthOfBits(); i++) {
-			dividendoAux = leftShift(dividendoAux);
-			dividendoAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
-			// Verifica se o resultado da subtracao mudou o sinal do dividendo
-			if(dividendoAux[tamanhoAux-1] != (dividendo.bits[dividendo.bits.length - 1])) {
-				// Se o sinal mudou, volta ao que estava antes
-				dividendoAux = soma(tamanhoAux, dividendoAux, divisorAux);
-				dividendoAux[0] = 0;
+			int[] dividendoTmpAux = subtrai(tamanhoAux, dividendoAux, divisorAux);
+			if(dividendoTmpAux[dividendoAux.length - 1] == 1 || isZero(dividendoTmpAux)) {
+				break;
+			} else {
+				dividendoAux=dividendoTmpAux;
+				quociente = soma1(quociente);
 			}
-			else dividendoAux[0] = 1;
 		}
-		int[] quociente = null;
 		//caso apenas um deles for negativo , é preciso colocar o complemento de 2 no resultado,
 		//pois se os dois forem positivos , ou os dois negativos, o resultado será positivo
 		if(isDividendoNegativo ^ isDivisorNegativo){
@@ -245,6 +244,15 @@ class Inteiro implements Cloneable{
 		}
 		return new Inteiro[] { new Inteiro(tamanhoAux/2, getMetadeEsq(dividendoAux)),
 			new Inteiro(tamanhoAux/2, quociente)};
+	}
+	
+	private static boolean isZero(int[] vetor) {
+		for (int v : vetor) {
+			if (v == 1) {
+				return false;
+			}
+		}
+		return true;	
 	}
 
 
@@ -482,15 +490,15 @@ class Inteiro implements Cloneable{
 
 	public static void main(String[] args){
 		int tamanho = 32;
-		Inteiro i = new Inteiro(tamanho, 14);
-		Inteiro a = new Inteiro(tamanho, 3);
+		Inteiro i = new Inteiro(tamanho, 4);
+		Inteiro a = new Inteiro(tamanho, 2);
 		Inteiro soma = Inteiro.soma(tamanho, i, a);
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
 		Inteiro[] divisao = Inteiro.divide(i, a);
 
-		System.out.println("a = " + a + " = " + a.toInteger()); // a
 		System.out.println("i = " + i + " = " + i.toInteger()); // i
+		System.out.println("a = " + a + " = " + a.toInteger()); // a
 		System.out.println("i + a = " + soma + " = " + soma.toInteger()); // i + a
 		System.out.println("i - a = " + subtracao + " = " + subtracao.toInteger()); // i - a
 		System.out.println("i * a = " + multiplicacao + " = " + multiplicacao.toInteger()); // i * a
