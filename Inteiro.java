@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 
 class Inteiro implements Cloneable{
-	
+
 	public static final Inteiro ZERO = new Inteiro(0);
-	
+
 	// a posicao 0 corresponde ao digito mais a direita de um numero
 	protected int[] bits;
-	
+
 	/**
 	* construtor que incializa o interio com um valor pre-definido
 	* @param valor inicial que o numero recebera
@@ -14,11 +14,17 @@ class Inteiro implements Cloneable{
 	public Inteiro(int tamanho, int numero){
 		this.bits = this.toBinario(tamanho, numero);
 	}
-	
+
 	public Inteiro(int numero) {
 		int size = 0;
 		for (int n = numero; n != 0 ; n = n/2) size++;
 		this.bits = this.toBinario((size + 1), numero);
+	}
+	
+	public static int[] Inteiro(int numero) {
+		int size = 0;
+		for (int n = numero; n != 0 ; n = n/2) size++;
+		 return (toBinario((size + 1), numero));
 	}
 
 	private Inteiro() {}
@@ -33,7 +39,7 @@ class Inteiro implements Cloneable{
 		this.bits = copiaBinario(tamanho,numero);
 	}
 
-	private static int[] copiaBinario(int tamanho, int[] numero){
+	public static int[] copiaBinario(int tamanho, int[] numero){
 		boolean negativo = numero[numero.length - 1] == 1;
 		if(negativo) numero = complementoDe2(numero);
 		int[] result = new int[tamanho];
@@ -57,8 +63,8 @@ class Inteiro implements Cloneable{
 	public Inteiro complementoDe2(){
 		return new Inteiro(this.bits.length, complementoDe2(this.bits));
 	}
-	
-	
+
+
 	private static int[] complementoDe2(int[] bits) {
 		int[] otherBits = new int[bits.length];
 		for(int a = 0; a < bits.length-1; a++)
@@ -69,15 +75,15 @@ class Inteiro implements Cloneable{
 	public static Inteiro subtrai(int tamanho, Inteiro int1, Inteiro int2){
 		return soma(tamanho, int1, int2.complementoDe2());
 	}
-	
+
 	public static int[] subtrai(int tamanho, int[] int1, int[] int2){
 		return soma(tamanho, int1, new Inteiro(int2.length, int2).complementoDe2().bits);
 	}
-	
+
 	public void soma(Inteiro i) {
 		this.bits = soma(this.bits.length, this.bits, i.bits);
 	}
-	
+
 	public void subtrai(Inteiro i) {
 		this.bits = subtrai(this.bits.length, this.bits, i.bits);
 	}
@@ -85,7 +91,7 @@ class Inteiro implements Cloneable{
 	public static Inteiro soma(int tamanho,Inteiro int1, Inteiro int2){
 		return new Inteiro(tamanho,soma(tamanho, int1.bits, int2.bits));
 	}
-	
+
 	public static int[] soma(int tamanho,int[] int1, int[] int2){
 		//essas duas linhas normalizam os tamanhos dos numeros;
 		int[] n1 = copiaBinario(tamanho, int1);
@@ -106,7 +112,7 @@ class Inteiro implements Cloneable{
 		}
 		return soma;
 	}
-	
+
 	/**
 	 * Soma um binario com um numero decimal e retorna o resultado em um vetor de bits binarios
 	 * @param n1 vetor de bits de numero binario
@@ -116,7 +122,7 @@ class Inteiro implements Cloneable{
 	public static int[] somaSimples(int[] n1, int n2) {
 		return somaSimples(n1.length, n1, new Inteiro(n2).getNumberBits());
 	}
-	
+
 	/**
 	 * Soma um binario com um numero decimal e retorna o resultado em um numero decimal
 	 * @param n1 vetor de bits de numero binario
@@ -131,7 +137,7 @@ class Inteiro implements Cloneable{
 	public void Rshift(){
 		this.bits = rightShift(this.bits);
 	}
-	
+
 	public void RshiftSimples(){
 		this.bits = rightShiftSimples(this.bits);
 	}
@@ -139,21 +145,21 @@ class Inteiro implements Cloneable{
 	public void Lshift(){
 		this.bits = leftShift(this.bits);
 	}
-	
+
 	public static int[] rightShift(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
 		bits[bits.length - 1] = 0;
 		return bits;
 	}
-	
+
 	public static int[] rightShiftSimples(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
 		bits[bits.length - 1] = 0;
 		return bits;
 	}
-	
+
 	public static int[] leftShift(int[] bits) {
 		for(int i = (bits.length - 1); i >0; i--)
 			bits[i] = bits[i-1];
@@ -168,7 +174,7 @@ class Inteiro implements Cloneable{
 	 * @return Objeto Inteiro com resultado da multiplicação
 	 */
 	public static Inteiro multiplica(Inteiro multiplicando, Inteiro multiplicador) {
-	
+
 		//checa se os numeros são negativos
 		boolean isMultiplicadorNegativo = multiplicador.bits[multiplicador.bits.length - 1] == 1;
 		boolean isMultiplicandoNegativo = multiplicando.bits[multiplicando.bits.length - 1] == 1;
@@ -184,7 +190,7 @@ class Inteiro implements Cloneable{
 		int anterior = 0;
 		int tamanhoProduto = multiplicador.bits.length*2;
 		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], bitsMultiplicador);
-		
+
 		for (int x = 0; x < bitsMultiplicador.length; x++) {
 			int atual = bitsMultiplicador[x];
 			if (atual == 1 && anterior == 0) {
@@ -202,7 +208,7 @@ class Inteiro implements Cloneable{
 		}
 		return new Inteiro(tamanhoProduto/2, produto);
 	}
-	
+
 
 	public static Inteiro[] divide(Inteiro dividendo, Inteiro divisor) {
 		int tamanhoAux = dividendo.getLengthOfBits()*2;
@@ -241,8 +247,8 @@ class Inteiro implements Cloneable{
 			new Inteiro(tamanhoAux/2, quociente)};
 	}
 
-	
-	private static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
+
+	public static int[] somaMetadeEsq(int[] bitsMultiplicando, int[] produto) {
 		if (produto.length  % 2 == 0) {
 			int[] metadeEsq = getMetadeEsq(produto); 
 			int[] metadeEsqSomada = soma(metadeEsq.length, bitsMultiplicando, metadeEsq);
@@ -274,8 +280,8 @@ class Inteiro implements Cloneable{
 		}
 		return soma;
 	}
-	
-	private static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
+
+	public static int[] subtraiMetadeEsq(int[] bitsMultiplicando, int[] produto) {
 		if (produto.length % 2 == 0) {
 			int[] metadeEsq = getMetadeEsq(produto); 
 			int[] metadeEsqSubtraida = subtrai(metadeEsq.length, metadeEsq, bitsMultiplicando);
@@ -283,7 +289,7 @@ class Inteiro implements Cloneable{
 		}
 		return produto;
 	}
-	
+
 	/**
 	 * Retorna a metade esquerda de um binario de 8 bits
 	 */
@@ -296,11 +302,11 @@ class Inteiro implements Cloneable{
 		}
 		return metadeEsq;
 	}
-	
+
 	/**
 	 * Acrescenta a metade esquerda processada de volta a um binario de 8 bits
 	 */
-	private static int[] novaMetadeEsq(int[] bits, int[] metadeEsq) {
+	public static int[] novaMetadeEsq(int[] bits, int[] metadeEsq) {
 		int finalMetadeEsq = bits.length;
 		int inicioMetadeEsq = finalMetadeEsq/2;
 		for (int i=inicioMetadeEsq; i<finalMetadeEsq;i++) {
@@ -308,11 +314,11 @@ class Inteiro implements Cloneable{
 		}
 		return bits;
 	}
-	
+
 	/**
 	 * Retorna a metade direita de um binario de 8 bits
 	 */
-	private static int[] getMetadeDir(int[] bits) {
+	public static int[] getMetadeDir(int[] bits) {
 		int tamanhoBits = bits.length;
 		int tamanhoMetadeDir = tamanhoBits/2;
 		int[] metadeDir = new int[tamanhoMetadeDir];
@@ -321,7 +327,7 @@ class Inteiro implements Cloneable{
 		}
 		return metadeDir;
 	}
-	
+
 	/**
 	 * Acrescenta a metade direita processada de volta a um binario de 8 bits
 	 */
@@ -333,11 +339,11 @@ class Inteiro implements Cloneable{
 		}
 		return bits;
 	}
-	
+
 	private int[] getBits() {
 		return bits.clone();
 	}
-	
+
 	public int[] getNumberBits() {
 		int[] numberBits = new int[bits.length-1];
 		for (int i=0; i<numberBits.length; i++) {
@@ -345,12 +351,12 @@ class Inteiro implements Cloneable{
 		}
 		return numberBits;
 	}
-	
+
 	private int getLengthOfBits() {
 		return bits.length;
 	}
 
-	private int[] toBinario(int tamanho,int numero){
+	private static int[] toBinario(int tamanho,int numero){
 		int binario[] = new int[tamanho];
 		boolean negativo = (numero < 0);
 		if(negativo) numero = numero * -1;
@@ -375,12 +381,12 @@ class Inteiro implements Cloneable{
 		}
 		return binario;
 	}
-	
+
 	public boolean isNegativo(){ 
 		return this.bits[this.bits.length - 1] == 1; 
 	}
-	
-	
+
+
 	private static int[] getIntArray(ArrayList<Integer> arrayList) {
 		int[] binario = new int[arrayList.size()];
 		for (int i=0; i < arrayList.size(); i++) {
@@ -388,7 +394,7 @@ class Inteiro implements Cloneable{
 		}
 		return binario;
 	}
-	
+
 	/**
 	 * Substitui o numero binario antigo por um novo conservando o tamanho em bits do objeto
 	 * @param bits
@@ -402,7 +408,7 @@ class Inteiro implements Cloneable{
 		}
 	}
 
-	
+
 
 	public String toString(){
 		String result = "";
@@ -425,7 +431,7 @@ class Inteiro implements Cloneable{
 		if(negativo) result = result * -1;
 		return result;
 	}
-	
+
 	public static int toSimpleInteger(int[] bits){
 		int p2 = 1;
 		int result = 0;
@@ -437,7 +443,7 @@ class Inteiro implements Cloneable{
 		return result;
 	}
 
-	
+
 	/**
 	 * Retorna a quantidade de digitos utilizadas para representar o numero
 	 * @return quantidade de digitos utilizadas para representar o numero
@@ -451,7 +457,7 @@ class Inteiro implements Cloneable{
 		}
 		return ultimoUm+1;
 	}
-	
+
 	/**
 	 * Retorna os bits necessarios para representacao do numero, o que pode ser maior que o tamanho definido para o objeto
 	 * @return bits necessarios para representacao do numero, o que pode ser maior que o tamanho definido para o objeto
@@ -464,9 +470,9 @@ class Inteiro implements Cloneable{
 		}
 		return shortenedBits;
 	}
-	
 
-	
+
+
 	@Override
 	protected Inteiro clone() {
 		Inteiro i = new Inteiro();
@@ -482,7 +488,7 @@ class Inteiro implements Cloneable{
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
 		Inteiro[] divisao = Inteiro.divide(i, a);
-		
+
 		System.out.println("a = " + a + " = " + a.toInteger()); // a
 		System.out.println("i = " + i + " = " + i.toInteger()); // i
 		System.out.println("i + a = " + soma + " = " + soma.toInteger()); // i + a
