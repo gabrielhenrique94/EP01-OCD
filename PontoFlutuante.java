@@ -124,6 +124,16 @@ public class PontoFlutuante {
 		int[] clone = expoente.clone();
 		return Inteiro.somaSimplesDecimal(clone, -128);
 	}
+	
+	/**
+	 * Retorna o expoente do float com 128 já subtraido em binario.
+	 * @return Expoente do float com 128 já subtraido em binario.
+	 */
+	public int[] getExpoenteBinario() {
+		int[] clone = expoente.clone();
+		return Inteiro.subtrai(clone.length, clone, new Inteiro(128).getNumberBits());
+	}
+
 
 	/**
 	 * Realiza a multiplicação de dois pontos flutuantes
