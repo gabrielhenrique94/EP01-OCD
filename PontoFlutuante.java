@@ -30,10 +30,13 @@ public class PontoFlutuante {
 
 	private void inicializaPontoFlutuante(Inteiro i, Inteiro resto) {
 		this.sinal = i.isNegativo() ? NEGATIVO : POSITIVO;
+		if (this.sinal==NEGATIVO) {
+			i = i.complementoDe2();
+		}
 		int[] mantissaAux = setBitsInArray(
 				somaBits(i.getNumberBits(), resto.getNumberBits()),
 				TAMANHO_MANTISSA * 2);
-		expoente = Inteiro.somaSimples(expoente, i.getNumberLength());
+		expoente = Inteiro.somaSimples(expoente, i.getNumberBits().length-1);
 		while (mantissaAux[mantissaAux.length - 1] == 0 && i.getNumberBits().length > 0)
 			mantissaAux = Inteiro.leftShift(mantissaAux);
 		mantissaAux = removePrimeiroUmEsq(mantissaAux);
