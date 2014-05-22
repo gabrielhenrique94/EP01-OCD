@@ -16,6 +16,11 @@ public class EP1OCD {
 		System.out.println("i * a = " + multiplicacao + " = " + multiplicacao.toInteger()); // i * a
 		System.out.println("i / a = " + divisao[1] + " = " + divisao[1].toInteger()); // i / a
 		System.out.println("i % a = " + divisao[0] + " = " + divisao[0].toInteger()); // i % a
+	
+		PontoFlutuante multFlut = PontoFlutuante.multiplicaFlutuante(flut1, flut2);
+		PontoFlutuante divFlut = PontoFlutuante.divideFlutuante(flut1, flut2);
+		System.out.println("i % a = " + multFlut + " = " + multFlut.toFloat()); // i * a
+		System.out.println("i % a = " + divFlut + " = " + divFlut.toFloat()); // i / a
 	}
 	
 }
