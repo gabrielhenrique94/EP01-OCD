@@ -34,7 +34,7 @@ public class PontoFlutuante {
 				somaBits(i.getNumberBits(), resto.getNumberBits()),
 				TAMANHO_MANTISSA * 2);
 		expoente = Inteiro.somaSimples(expoente, i.getNumberLength());
-		while (mantissaAux[mantissaAux.length - 1] == 0)
+		while (mantissaAux[mantissaAux.length - 1] == 0 && i.getNumberBits().length > 0)
 			mantissaAux = Inteiro.leftShift(mantissaAux);
 		mantissaAux = removePrimeiroUmEsq(mantissaAux);
 		mantissa = setNewBitsPelaEsq(mantissaAux, TAMANHO_MANTISSA);
