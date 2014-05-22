@@ -13,8 +13,8 @@ public class PontoFlutuante {
 	private int sinal;
 	// � utilizado o TAMANHO_EXPOENTE+1 pois o inteiro utiliza um bit para sinal
 	// que � utilizado nesse ponto.
-	private int[] expoente = new Inteiro(TAMANHO_EXPOENTE + 1, 128).getNumberBits();
-	private int[] mantissa = new int[TAMANHO_MANTISSA];
+	protected int[] expoente = new Inteiro(TAMANHO_EXPOENTE + 1, 128).getNumberBits();
+	protected int[] mantissa = new int[TAMANHO_MANTISSA];
 
 	public PontoFlutuante(int numero) {
 		inicializaPontoFlutuante(new Inteiro(numero), Inteiro.ZERO);
@@ -450,7 +450,17 @@ public class PontoFlutuante {
 		return expoente;
 	}
 	
-	public static float toFloat(){
-		return 0f;
+	public float toFloat(){
+		
+		int expoente = this.getExpoente();
+		int p2 = 1;
+		float result = 0;
+		for(int i = 0 ; i < this.mantissa.length; i++){
+			result += mantissa[i] * p2;
+			p2 /= 2;
+		}
+		if(this.sinal == 1) result = result * -1;
+		result = (float) Math.pow(result, expoente);
+		return result;
 	}
 }
