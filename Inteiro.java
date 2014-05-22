@@ -149,7 +149,6 @@ class Inteiro implements Cloneable{
 	public static int[] rightShift(int[] bits) {
 		for(int i = 0; i < (bits.length - 1); i++)
 			bits[i] = bits[i+1];
-		bits[bits.length - 1] = 0;
 		return bits;
 	}
 
@@ -186,27 +185,30 @@ class Inteiro implements Cloneable{
 		bitsMultiplicador = copiaBinario(tamanho,bitsMultiplicador);
 		bitsMultiplicando = copiaBinario(tamanho,bitsMultiplicando);
 
-
-		int anterior = 0;
-		int tamanhoProduto = multiplicador.bits.length*2;
-		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], bitsMultiplicador);
-
-		for (int x = 0; x < bitsMultiplicador.length; x++) {
-			int atual = bitsMultiplicador[x];
-			if (atual == 1 && anterior == 0) {
-				produto = subtraiMetadeEsq(bitsMultiplicando, produto);
-			} else if (atual == 0 && anterior == 1){
-				produto = somaMetadeEsq(bitsMultiplicando, produto);
-			}
-			produto = rightShift(produto);
-			anterior = atual;
-		}
+		int[] produto = multiplicaUnsigned(bitsMultiplicador, bitsMultiplicando);
 		//caso apenas um deles for negativo , é preciso colocar o complemento de 2 no resultado,
 		//pois se os dois forem positivos , ou os dois negativos, o resultado será positivo
 		if(isMultiplicandoNegativo ^ isMultiplicadorNegativo){
 			produto = complementoDe2(produto);
 		}
-		return new Inteiro(tamanhoProduto/2, produto);
+		return new Inteiro(produto.length/2, produto);
+	}
+
+	public static int[] multiplicaUnsigned(int[] multiplicando, int[] multiplicador ){
+		int anterior = 0;
+		int tamanhoProduto = multiplicador.length*2;
+		int[] produto = soma(tamanhoProduto, new int[tamanhoProduto], multiplicador);
+		for (int x = 0; x < multiplicador.length; x++) {
+			int atual = multiplicador[x];
+			if (atual == 1 && anterior == 0) {
+				produto = subtraiMetadeEsq(multiplicando, produto);
+			} else if (atual == 0 && anterior == 1){
+				produto = somaMetadeEsq(multiplicando, produto);
+			}
+			produto = rightShift(produto);
+			anterior = atual;
+		}
+		return produto;
 	}
 
 
@@ -490,8 +492,8 @@ class Inteiro implements Cloneable{
 
 	public static void main(String[] args){
 		int tamanho = 32;
-		Inteiro i = new Inteiro(tamanho, 4);
-		Inteiro a = new Inteiro(tamanho, 2);
+		Inteiro i = new Inteiro(tamanho, -4);
+		Inteiro a = new Inteiro(tamanho, -2);
 		Inteiro soma = Inteiro.soma(tamanho, i, a);
 		Inteiro subtracao = Inteiro.subtrai(tamanho,i,a);
 		Inteiro multiplicacao = Inteiro.multiplica(i, a);
